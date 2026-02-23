@@ -1,0 +1,35 @@
+import type { Metadata, Viewport } from "next"
+import { Inter, JetBrains_Mono } from "next/font/google"
+import { Analytics } from "@vercel/analytics/next"
+import { ClerkProvider } from "@clerk/nextjs"
+import { QueryProvider } from "@/(client)/components/query-boundary"
+import { cn } from "@/(client)/lib/utils"
+import { APP_NAME } from "@/(client)/lib/constants"
+import "./globals.css"
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
+const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains-mono" })
+
+export const metadata: Metadata = {
+  title: `${APP_NAME} - AI Platform`,
+  description: 'Production-ready AI platform for building intelligent applications',
+}
+
+export const viewport: Viewport = {
+  themeColor: '#1a1025',
+}
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <ClerkProvider>
+      <html lang="en" className="dark">
+        <body className={cn(inter.variable, jetbrainsMono.variable, "font-sans antialiased")}>
+          <QueryProvider>
+            {children}
+            <Analytics />
+          </QueryProvider>
+        </body>
+      </html>
+    </ClerkProvider>
+  )
+}
