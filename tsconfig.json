@@ -25,6 +25,12 @@
     "paths": {
       "@/*": [
         "./app/*"
+      ],
+      "@queries": [
+        "./app/(client)/components/query-boundary/queries"
+      ],
+      "@mutations": [
+        "./app/(client)/components/query-boundary/mutations"
       ]
     }
   },

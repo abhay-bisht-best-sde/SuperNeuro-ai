@@ -1,0 +1,47 @@
+export const industries = [
+  "Technology",
+  "Healthcare",
+  "Finance & Banking",
+  "Education",
+  "E-commerce & Retail",
+  "Marketing & Advertising",
+  "Legal",
+  "Real Estate",
+  "Manufacturing",
+  "Media & Entertainment",
+  "Logistics & Supply Chain",
+  "Energy & Utilities",
+  "Non-profit",
+  "Government",
+  "Consulting",
+  "Insurance",
+  "Travel & Hospitality",
+  "Other",
+]
+
+export const useCases = [
+  "Customer Support",
+  "Content Generation",
+  "Code Assistance",
+  "Data Analysis",
+  "Research",
+  "Sales & CRM",
+  "Document Processing",
+  "Internal Knowledge Base",
+  "Meeting Notes & Summaries",
+  "Email Drafting",
+  "HR & Recruiting",
+  "Legal Drafting",
+  "Marketing Copy",
+  "Product Documentation",
+  "Translation",
+]
+
+export const teamSizes = [
+  "Just me",
+  "2-5 people",
+  "6-20 people",
+  "21-100 people",
+  "101-500 people",
+  "500+ people",
+]
