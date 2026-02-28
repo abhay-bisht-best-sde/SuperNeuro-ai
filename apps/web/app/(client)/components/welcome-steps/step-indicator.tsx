@@ -5,7 +5,8 @@ interface StepIndicatorProps {
   totalSteps: number
 }
 
-export function StepIndicator({ currentStep, totalSteps }: StepIndicatorProps) {
+export function StepIndicator(props: StepIndicatorProps) {
+  const { currentStep, totalSteps } = props
   return (
     <div className="flex items-center gap-2">
       {Array.from({ length: totalSteps }).map((_, i) => (

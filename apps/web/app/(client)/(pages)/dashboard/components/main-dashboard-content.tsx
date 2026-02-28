@@ -1,43 +1,47 @@
 "use client"
 
 import { useState, memo } from "react"
+
+import { AddKnowledgeBaseModal } from "@/(client)/components/modal/add-knowledge-base-modal"
 import { TopNavbar } from "@/(client)/components/layout/top-navbar"
 import { ChatWorkspace } from "@/(client)/components/workspace/chat-workspace"
-import { AddKnowledgeBaseModal } from "@/(client)/components/modal/add-knowledge-base-modal"
 import { SidebarTogglePanel } from "./sidebar-toggle-panel"
-import type {
-  SidebarSection,
-  Conversation,
-  Agent,
-} from "../../../libs/store"
-import { sampleAgents } from "../../../libs/store"
+import { useRetryKnowledgeBase } from "@/(client)/components/query-boundary"
+import type { SidebarSection } from "@/(client)/libs/types"
+import type { ConversationWithMessages } from "@/(client)/components/query-boundary"
 
 interface MainDashboardContentProps {
   activeSection: SidebarSection
-  conversations: Conversation[]
   activeConversationId: string | null
-  onSelectConversation: (id: string) => void
-  onNewConversation: () => void
-  onDeleteConversation: (id: string) => void
-  onSendMessage: (content: string) => void
-  activeConversation: Conversation | null
+  activeConversation: ConversationWithMessages | null
+  hasConversations: boolean
+  isConversationLoading?: boolean
   isTyping: boolean
+  onSelectConversation: (id: string) => void
+  onCreateConversation: () => void
+  onConversationCreated: (id: string) => void
+  onConversationDeleted: (id: string) => void
+  onSendMessage: (content: string) => void
 }
 
 function MainDashboardContentInner(props: MainDashboardContentProps) {
   const {
     activeSection,
-    conversations,
     activeConversationId,
-    onSelectConversation,
-    onNewConversation,
-    onDeleteConversation,
-    onSendMessage,
     activeConversation,
+    hasConversations,
+    isConversationLoading = false,
     isTyping,
+    onSelectConversation,
+    onCreateConversation,
+    onConversationCreated,
+    onConversationDeleted,
+    onSendMessage,
   } = props
+
   const [kbModalOpen, setKbModalOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const retryKnowledgeBase = useRetryKnowledgeBase()
 
   return (
     <>
@@ -46,21 +50,22 @@ function MainDashboardContentInner(props: MainDashboardContentProps) {
       <div className="relative flex flex-1 overflow-hidden">
         <SidebarTogglePanel
           activeSection={activeSection}
-          conversations={conversations}
           activeConversationId={activeConversationId}
-          onSelectConversation={onSelectConversation}
-          onNewConversation={onNewConversation}
-          onDeleteConversation={onDeleteConversation}
-          agents={sampleAgents}
-          onAddKnowledgeBase={() => setKbModalOpen(true)}
-          onRetryKnowledgeBase={() => {}}
           sidebarOpen={sidebarOpen}
+          onSelectConversation={onSelectConversation}
+          onConversationCreated={onConversationCreated}
+          onConversationDeleted={onConversationDeleted}
+          onAddKnowledgeBase={() => setKbModalOpen(true)}
+          onRetryKnowledgeBase={(id) => retryKnowledgeBase.mutate(id)}
         >
           <ChatWorkspace
             conversation={activeConversation}
-            onSendMessage={onSendMessage}
+            hasConversations={hasConversations}
+            isConversationLoading={isConversationLoading}
             isTyping={isTyping}
             sidebarOpen={sidebarOpen}
+            onCreateConversation={onCreateConversation}
+            onSendMessage={onSendMessage}
             onSidebarToggle={() => setSidebarOpen((prev) => !prev)}
           />
         </SidebarTogglePanel>

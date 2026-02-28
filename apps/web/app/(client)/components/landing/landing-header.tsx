@@ -2,8 +2,7 @@
 
 import { useAuth } from "@clerk/nextjs"
 import { motion } from "framer-motion"
-import Link from "next/link"
-import { ArrowRight} from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import { Button } from "@/(client)/components/ui/button"
 import { SuperNeuroLogo } from "./super-neuro-logo"
 import { useRouter } from "next/navigation"

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { BODY_TOO_LARGE_ERROR, FORBIDDEN_ERROR } from "./constants";
+import { BODY_TOO_LARGE_ERROR, FORBIDDEN_ERROR } from "../helpers/constants";
 
 export function validateBodySize(
   contentLength: string | null,

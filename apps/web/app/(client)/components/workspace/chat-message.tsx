@@ -1,82 +1,149 @@
 "use client"
-
 import { motion } from "framer-motion"
-import { Copy, ThumbsUp, Volume2, RefreshCcw, Sparkles } from "lucide-react"
-import { Button } from "@/(client)/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/(client)/components/ui/avatar"
-import { cn } from "@/(client)/libs/utils"
-import type { Message } from "@/(client)/libs/store"
+import ReactMarkdown from "react-markdown"
+import { Sparkles } from "lucide-react"
 
-interface ChatMessageProps {
-  message: Message
-  index: number
+import { cn } from "@/(client)/libs/utils"
+
+import type { Message } from "@repo/database"
+
+function UserAvatar() {
+  return (
+    <div
+      className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+      style={{
+        background:
+          "linear-gradient(135deg, oklch(0.38 0.06 295), oklch(0.42 0.05 285))",
+      }}
+    >
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="relative z-10 text-primary-foreground"
+      >
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>
+    </div>
+  )
 }
 
-export function ChatMessage({ message, index }: ChatMessageProps) {
-  const isUser = message.role === "user"
+function AIAvatar() {
+  return (
+    <div
+      className="animate-avatar-glow-ai relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+      style={{
+        background:
+          "linear-gradient(135deg, oklch(0.65 0.25 295), oklch(0.60 0.15 250))",
+      }}
+    >
+      <div
+        className="absolute inset-0 rounded-full opacity-60"
+        style={{
+          background:
+            "radial-gradient(circle at 30% 30%, oklch(1 0 0 / 0.2), transparent 60%)",
+        }}
+      />
+      <Sparkles className="relative z-10 h-4 w-4 text-primary-foreground" />
+    </div>
+  )
+}
+
+function formatMessageTime(date: Date | string): string {
+  const d = typeof date === "string" ? new Date(date) : date
+  const time = d.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  })
+  const day = d.toLocaleDateString("en-US", { weekday: "short" })
+  const dateStr = d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  })
+  return `${time} • ${day} • ${dateStr}`
+}
+
+interface ChatMessageProps {
+  message: Pick<Message, "id" | "role" | "content" | "createdAt">
+  index: number
+  isLatest?: boolean
+  shouldAnimate?: boolean
+}
+
+export function ChatMessage(props: ChatMessageProps) {
+  const { message, index, isLatest = false, shouldAnimate = true } = props
+
+  const isUser =
+    message.role === "USER" ||
+    String(message.role).toUpperCase() === "USER"
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={shouldAnimate ? { opacity: 0, y: 12 } : false}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.08, duration: 0.3 }}
+      transition={{
+        delay: shouldAnimate ? (isLatest ? 0 : index * 0.08) : 0,
+        duration: shouldAnimate ? 0.3 : 0,
+      }}
       className={cn("flex gap-3", isUser ? "flex-row-reverse" : "flex-row")}
     >
-      {isUser ? (
-        <Avatar className="h-8 w-8 shrink-0">
-          <AvatarImage
-            src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&fit=crop&crop=face"
-            alt="User avatar"
-          />
-          <AvatarFallback className="bg-accent text-xs text-accent-foreground">
-            JD
-          </AvatarFallback>
-        </Avatar>
-      ) : (
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/20">
-          <Sparkles className="h-4 w-4 text-primary" />
-        </div>
-      )}
+      {isUser ? <UserAvatar /> : <AIAvatar />}
 
-      <div className={cn("max-w-[80%]", isUser ? "items-end" : "items-start")}>
+      <div
+        className={cn(
+          "flex max-w-[92%] flex-col",
+          isUser ? "items-end" : "items-start"
+        )}
+      >
         <div
           className={cn(
-            "rounded-2xl px-4 py-3",
+            "w-fit max-w-lg rounded-2xl px-4 py-3",
             isUser
-              ? "bg-gradient-to-br from-primary to-accent text-primary-foreground"
-              : "bg-card border border-border text-foreground"
+              ? "text-primary-foreground"
+              : "border border-white/10 text-primary-foreground"
           )}
+          style={
+            !isUser
+              ? {
+                  background:
+                    "linear-gradient(135deg, oklch(0.65 0.25 295), oklch(0.60 0.15 250))",
+                }
+              : {
+                  background:
+                    "linear-gradient(135deg, oklch(0.38 0.06 295), oklch(0.42 0.05 285))",
+                }
+          }
         >
-          <p className="whitespace-pre-wrap text-sm leading-relaxed">
-            {message.content}
-          </p>
+          {isUser ? (
+            <p className="whitespace-pre-wrap text-sm leading-relaxed">
+              {message.content}
+            </p>
+          ) : (
+            <div className="markdown-content text-sm leading-relaxed [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:my-2 [&_ol]:my-2 [&_li]:ml-4 [&_pre]:rounded-lg [&_pre]:bg-muted [&_pre]:p-3 [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_code]:py-0.5 [&_pre_code]:bg-transparent [&_pre_code]:p-0">
+              <ReactMarkdown>{message.content}</ReactMarkdown>
+            </div>
+          )}
         </div>
 
-        {!isUser && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="mt-2 flex items-center gap-1"
+        {message.createdAt && (
+          <p
+            className={cn(
+              "mt-1.5 text-xs text-muted-foreground",
+              isUser
+                ? "text-right"
+                : "text-left"
+            )}
           >
-            <Button variant="ghost" size="icon-sm" className="h-7 w-7 rounded-lg hover:bg-primary/20">
-              <Copy className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="sr-only">Copy</span>
-            </Button>
-            <Button variant="ghost" size="icon-sm" className="h-7 w-7 rounded-lg hover:bg-primary/20">
-              <ThumbsUp className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="sr-only">Like</span>
-            </Button>
-            <Button variant="ghost" size="icon-sm" className="h-7 w-7 rounded-lg hover:bg-primary/20">
-              <Volume2 className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="sr-only">Read aloud</span>
-            </Button>
-            <div className="flex-1" />
-            <Button variant="ghost" size="icon-sm" className="h-7 w-7 rounded-lg hover:bg-primary/20">
-              <RefreshCcw className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="sr-only">Regenerate</span>
-            </Button>
-          </motion.div>
+            {formatMessageTime(message.createdAt)}
+          </p>
         )}
       </div>
     </motion.div>

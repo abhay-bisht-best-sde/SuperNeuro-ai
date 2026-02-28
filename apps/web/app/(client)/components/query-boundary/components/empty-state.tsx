@@ -1,6 +1,7 @@
 "use client"
 
 import { InboxIcon } from "lucide-react"
+
 import {
   Empty,
   EmptyDescription,
@@ -16,11 +17,13 @@ interface EmptyStateProps {
   description?: string
 }
 
-export function EmptyState({
-  className,
-  title = "No data",
-  description = "There's nothing here yet.",
-}: EmptyStateProps) {
+export function EmptyState(props: EmptyStateProps) {
+  const {
+    className,
+    title = "No data",
+    description = "There's nothing here yet.",
+  } = props
+
   return (
     <Empty className={cn("min-h-[200px]", className)}>
       <EmptyHeader>

@@ -1,45 +1,43 @@
 "use client"
 
 import { AnimatePresence, motion } from "framer-motion"
-import type { SidebarSection, Conversation, Agent } from "@/(client)/libs/store"
+
 import { ConversationsPanel } from "@/(client)/components/panels/conversations-panel"
-import { AgentsPanel } from "@/(client)/components/panels/agents-panel"
 import { KnowledgePanel } from "@/(client)/components/panels/knowledge-panel"
 import { useKnowledgeBase, QueryBoundary } from "@/(client)/components/query-boundary"
 
+import type { SidebarSection } from "@/(client)/libs/types"
+
 const sectionTitles: Record<SidebarSection, string> = {
   conversations: "Conversations",
-  agents: "Agents",
   knowledge: "Knowledge Base",
 }
 
 interface SecondarySidebarProps {
   activeSection: SidebarSection
-  conversations: Conversation[]
   activeConversationId: string | null
+  isOpen: boolean
   onSelectConversation: (id: string) => void
-  onNewConversation: () => void
-  onDeleteConversation: (id: string) => void
-  agents: Agent[]
+  onConversationCreated: (id: string) => void
+  onConversationDeleted: (id: string) => void
   onAddKnowledgeBase: () => void
   onRetryKnowledgeBase: (id: string) => void
-  isOpen: boolean
 }
 
 export function SecondarySidebar(props: SecondarySidebarProps) {
   const {
     activeSection,
-    conversations,
     activeConversationId,
+    isOpen,
     onSelectConversation,
-    onNewConversation,
-    onDeleteConversation,
-    agents,
+    onConversationCreated,
+    onConversationDeleted,
     onAddKnowledgeBase,
     onRetryKnowledgeBase,
-    isOpen,
   } = props
+
   const knowledgeBaseQuery = useKnowledgeBase()
+
   if (!isOpen) return null
 
   return (
@@ -70,14 +68,12 @@ export function SecondarySidebar(props: SecondarySidebarProps) {
         >
           {activeSection === "conversations" && (
             <ConversationsPanel
-              conversations={conversations}
               activeConversationId={activeConversationId}
               onSelectConversation={onSelectConversation}
-              onNewConversation={onNewConversation}
-              onDeleteConversation={onDeleteConversation}
+              onConversationCreated={onConversationCreated}
+              onConversationDeleted={onConversationDeleted}
             />
           )}
-          {activeSection === "agents" && <AgentsPanel agents={agents} />}
           {activeSection === "knowledge" && (
             <QueryBoundary
               queries={[knowledgeBaseQuery] as const}

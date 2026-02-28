@@ -1,40 +1,36 @@
 "use client"
 
 import { AnimatePresence, motion } from "framer-motion"
+
 import { SecondarySidebar } from "@/(client)/components/layout/secondary-sidebar"
-import type {
-  SidebarSection,
-  Conversation,
-  Agent,
-} from "../../../libs/store"
+
+import type { SidebarSection } from "@/(client)/libs/types"
 
 interface SidebarTogglePanelProps {
   activeSection: SidebarSection
-  conversations: Conversation[]
   activeConversationId: string | null
-  onSelectConversation: (id: string) => void
-  onNewConversation: () => void
-  onDeleteConversation: (id: string) => void
-  agents: Agent[]
-  onAddKnowledgeBase: () => void
-  onRetryKnowledgeBase: (id: string) => void
   sidebarOpen: boolean
   children: React.ReactNode
+  onSelectConversation: (id: string) => void
+  onConversationCreated: (id: string) => void
+  onConversationDeleted: (id: string) => void
+  onAddKnowledgeBase: () => void
+  onRetryKnowledgeBase: (id: string) => void
 }
 
-export function SidebarTogglePanel({
-  activeSection,
-  conversations,
-  activeConversationId,
-  onSelectConversation,
-  onNewConversation,
-  onDeleteConversation,
-  agents,
-  onAddKnowledgeBase,
-  onRetryKnowledgeBase,
-  sidebarOpen,
-  children,
-}: SidebarTogglePanelProps) {
+export function SidebarTogglePanel(props: SidebarTogglePanelProps) {
+  const {
+    activeSection,
+    activeConversationId,
+    sidebarOpen,
+    children,
+    onSelectConversation,
+    onConversationCreated,
+    onConversationDeleted,
+    onAddKnowledgeBase,
+    onRetryKnowledgeBase,
+  } = props
+
   return (
     <>
       <AnimatePresence mode="wait">
@@ -48,15 +44,13 @@ export function SidebarTogglePanel({
           >
             <SecondarySidebar
               activeSection={activeSection}
-              conversations={conversations}
               activeConversationId={activeConversationId}
+              isOpen={true}
               onSelectConversation={onSelectConversation}
-              onNewConversation={onNewConversation}
-              onDeleteConversation={onDeleteConversation}
-              agents={agents}
+              onConversationCreated={onConversationCreated}
+              onConversationDeleted={onConversationDeleted}
               onAddKnowledgeBase={onAddKnowledgeBase}
               onRetryKnowledgeBase={onRetryKnowledgeBase}
-              isOpen={true}
             />
           </motion.div>
         )}

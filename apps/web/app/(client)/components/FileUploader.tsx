@@ -62,11 +62,14 @@ function createUppy(
     limit: UPLOAD_CONCURRENCY,
     retryDelays: [...UPLOAD_RETRY_DELAYS],
     shouldUseMultipart: () => true,
-    createMultipartUpload: async (file, { signal }) => {
+    uploadPartBytes: AwsS3Multipart.uploadPartBytes,
+    getUploadParameters: async () => {
+      throw new Error("Multipart upload only");
+    },
+    createMultipartUpload: async (file) => {
       const data = await apiFetch<{ uploadId: string; key: string }>(
         "/api/create-multipart-upload",
-        { fileName: file.name, contentType: file.type || "application/pdf" },
-        signal
+        { fileName: file.name, contentType: file.type || "application/pdf" }
       );
       return { uploadId: data.uploadId, key: data.key };
     },
@@ -84,11 +87,15 @@ function createUppy(
         {
           key,
           uploadId,
-          parts: parts.map((p) => ({ PartNumber: p.PartNumber, ETag: p.ETag })),
+          parts: parts.map((p) => ({
+            PartNumber: p.PartNumber ?? 0,
+            ETag: p.ETag ?? "",
+          })),
         },
         signal
       );
-      return { key: data.key ?? key };
+      const resolvedKey = data.key ?? key;
+      return { location: resolvedKey, key: resolvedKey };
     },
     abortMultipartUpload: async (file, { key, uploadId }) => {
       await fetch("/api/abort-multipart-upload", {
@@ -98,6 +105,7 @@ function createUppy(
       });
     },
     listParts: async (file, { key, uploadId, signal }) => {
+      if (!uploadId) return [];
       const url = `/api/list-parts?key=${encodeURIComponent(key)}&uploadId=${encodeURIComponent(uploadId)}`;
       const res = await fetch(url, { signal });
       if (!res.ok) throw new Error("Failed to list parts");
@@ -109,17 +117,38 @@ function createUppy(
     },
   });
 
-  uppy.use(GoldenRetriever, { serviceWorker: false, indexedDB: true });
+  uppy.use(GoldenRetriever, { serviceWorker: false, indexedDB: {} });
 
   uppy.on("upload-success", (file, response) => {
-    const key =
-      (response as { body?: { key?: string }; key?: string })?.body?.key ??
-      (response as { key?: string })?.key;
-    if (key && file?.name && file?.size != null) {
-      const payload = { fileName: file.name, fileSize: file.size, key };
-      void storeFileMetadata(payload)
-        .then(() => onUploadComplete?.({ name: file.name, size: file.size, key }))
-        .catch(() => {});
+    const res = response as {
+      body?: { key?: string };
+      key?: string;
+      location?: string;
+    };
+    const key = res?.body?.key ?? res?.key ?? res?.location;
+    if (key && file?.name != null && file?.size != null) {
+      const size = file.size;
+      const payload = { fileName: file.name, fileSize: size, key };
+      void storeFileMetadata?.(payload)
+        .then(() =>
+          onUploadComplete?.({ name: file.name, size, key })
+        )
+        .catch((err) => {
+          onError?.(err instanceof Error ? err : new Error(String(err)));
+        });
+    } else {
+      const missingKey = !key;
+      const errorMessage = missingKey
+        ? "Upload completed but storage key was missing. File metadata could not be saved."
+        : "Upload completed but file info was incomplete.";
+      const err = new Error(errorMessage);
+      if (missingKey) {
+        console.error("[FileUploader] Missing key in upload response", {
+          response: res,
+          fileName: file?.name,
+        });
+      }
+      onError?.(err);
     }
   });
 
@@ -180,8 +209,8 @@ export function FileUploader({
         note="One PDF file, max 500MB"
         locale={{
           strings: {
-            dropPasteImport: "Drop a file here or %{browse}",
-            browse: "browse",
+            dropPasteImportBoth: "Drop a file here or %{browseFiles}",
+            browseFiles: "browse",
           },
         }}
       />

@@ -56,7 +56,7 @@ SQS event consumer & processor. Polls AWS SQS, handles events 24/7. Uses `@repo/
    Or run individually:
    ```bash
    npm run dev --workspace=@repo/web
-   npm run dev --workspace=@repo/worker
+   npm run worker              # Python worker (PDF + image SQS pollers)
    ```
 
 5. **Build**

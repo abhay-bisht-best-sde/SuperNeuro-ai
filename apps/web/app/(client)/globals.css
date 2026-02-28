@@ -89,6 +89,60 @@
   }
 }
 
+@keyframes dash-border-pulse {
+  0%,
+  100% {
+    border-color: oklch(0.65 0.25 295 / 0.8);
+  }
+  50% {
+    border-color: oklch(0.65 0.25 295 / 0.2);
+  }
+}
+
+.animate-dash-border {
+  animation: dash-border-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes avatar-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 20px oklch(0.72 0.20 330 / 0.4),
+      0 0 40px oklch(0.65 0.25 295 / 0.2),
+      inset 0 1px 0 oklch(1 0 0 / 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 24px oklch(0.72 0.20 330 / 0.6),
+      0 0 48px oklch(0.65 0.25 295 / 0.35),
+      inset 0 1px 0 oklch(1 0 0 / 0.2);
+  }
+}
+
+@keyframes avatar-glow-ai {
+  0%,
+  100% {
+    box-shadow:
+      0 0 20px oklch(0.65 0.25 295 / 0.4),
+      0 0 40px oklch(0.60 0.15 250 / 0.2),
+      inset 0 1px 0 oklch(1 0 0 / 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 24px oklch(0.65 0.25 295 / 0.6),
+      0 0 48px oklch(0.60 0.15 250 / 0.35),
+      inset 0 1px 0 oklch(1 0 0 / 0.2);
+  }
+}
+
+.animate-avatar-glow {
+  animation: avatar-glow 3s ease-in-out infinite;
+}
+
+.animate-avatar-glow-ai {
+  animation: avatar-glow-ai 3s ease-in-out infinite;
+}
+
 /* Uppy FileUploader - match app dark theme */
 .uppy-upload-container[data-uppy-theme='dark'] .uppy-Dashboard-inner,
 .uppy-upload-container[data-uppy-theme='dark'] .uppy-Dashboard-AddFilesPanel,
@@ -140,4 +194,18 @@
 .uppy-upload-container[data-uppy-theme='dark'] .uppy-Dashboard-Item-name {
   border-color: var(--border) !important;
   color: var(--foreground) !important;
+}
+
+/* Chat panel scrollbar - always visible */
+[data-slot='scroll-area'][data-chat-scroll] [data-slot='scroll-area-scrollbar'] {
+  opacity: 1;
+}
+
+[data-slot='scroll-area'][data-chat-scroll] [data-slot='scroll-area-thumb'] {
+  background-color: var(--muted);
+  border-radius: 9999px;
+}
+
+[data-slot='scroll-area'][data-chat-scroll] [data-slot='scroll-area-thumb']:hover {
+  background-color: var(--muted-foreground);
 }

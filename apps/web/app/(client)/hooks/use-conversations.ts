@@ -1,123 +1,197 @@
 "use client"
 
-import { useState, useCallback } from "react"
-import type { Conversation, Message } from "../libs/store"
-import { sampleConversations } from "../libs/store"
+import { useState, useCallback, useEffect, useRef, useMemo } from "react"
 
-const ASSISTANT_RESPONSE =
-  "Thank you for your question! I'd be happy to help you with that. Let me provide a detailed response based on my knowledge.\n\nHere are the key points to consider:\n\n1. **Understanding the fundamentals** - It's important to have a solid foundation before diving into advanced topics.\n\n2. **Practice consistently** - Regular practice helps reinforce learning and build muscle memory.\n\n3. **Stay updated** - The field is constantly evolving, so keeping up with the latest developments is crucial."
+import { useAuth } from "@clerk/nextjs"
+import { useQueryClient } from "@tanstack/react-query"
+
+import {
+  useConversation,
+  useCreateConversation,
+  useSendMessage,
+} from "@/(client)/components/query-boundary"
+import { useAblyChannels } from "@/(client)/hooks/use-ably-channels"
+
+import type { Message } from "@repo/database"
+import type { ConversationWithMessages } from "@/(client)/components/query-boundary"
+import { ConversationMessageEvent } from "@/libs/ably-types"
+import { FETCH_CONVERSATION_KEYS } from "@/(client)/components/query-boundary"
+
+type CachedMessage = Pick<Message, "id" | "role" | "content" | "createdAt">
 
 export function useConversations() {
-  const [conversations, setConversations] =
-    useState<Conversation[]>(sampleConversations)
-  const [activeConversationId, setActiveConversationId] = useState<
-    string | null
-  >("1")
-  const [isTyping, setIsTyping] = useState(false)
+  const { userId } = useAuth()
+  const queryClient = useQueryClient()
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(
+    null
+  )
+  const [pendingByConv, setPendingByConv] = useState<Map<string, CachedMessage[]>>(
+    () => new Map()
+  )
+  const [typingByConv, setTypingByConv] = useState<Map<string, boolean>>(
+    () => new Map()
+  )
+  const activeIdRef = useRef<string | null>(null)
+  activeIdRef.current = activeConversationId
 
-  const activeConversation =
-    conversations.find((c) => c.id === activeConversationId) ?? null
+  const conversationQuery = useConversation(activeConversationId)
+  const createConversation = useCreateConversation()
+  const sendMessage = useSendMessage()
 
-  const simulateResponse = useCallback((convId: string) => {
-    setIsTyping(true)
-    setTimeout(() => {
-      const assistantMsg: Message = {
-        id: `msg-${Date.now()}-assistant`,
-        role: "assistant",
-        content: ASSISTANT_RESPONSE,
-        timestamp: new Date(),
-      }
-      setConversations((prev) =>
-        prev.map((c) =>
-          c.id === convId
-            ? { ...c, messages: [...c.messages, assistantMsg] }
-            : c
-        )
-      )
-      setIsTyping(false)
-    }, 2000)
+  const data = conversationQuery.data
+  const isForActive =
+    data && activeConversationId && data.id === activeConversationId
+
+  const serverMessages: CachedMessage[] = isForActive ? data.messages : []
+  const pending = activeConversationId
+    ? (pendingByConv.get(activeConversationId) ?? [])
+    : []
+  const hasPending = Boolean(
+    activeConversationId && pending.length > serverMessages.length
+  )
+
+  const messages: CachedMessage[] = hasPending ? pending : serverMessages
+
+  useEffect(() => {
+    if (!activeConversationId) return
+    if (!data || data.id !== activeConversationId) return
+    if (pending.length > data.messages.length) return
+
+    setPendingByConv((prev) => {
+      const next = new Map(prev)
+      next.set(activeConversationId, data.messages)
+      return next
+    })
+  }, [activeConversationId, data, pending.length])
+
+  const subscribeIds = useMemo(() => {
+    const ids = new Set<string>()
+    if (activeConversationId) ids.add(activeConversationId)
+    typingByConv.forEach((_, id) => ids.add(id))
+    return Array.from(ids)
+  }, [activeConversationId, typingByConv])
+
+  const onThinking = useCallback((convId: string) => {
+    setTypingByConv((prev) => {
+      const next = new Map(prev)
+      next.set(convId, true)
+      return next
+    })
   }, [])
 
-  const handleNewConversation = useCallback(() => {
-    const newConv: Conversation = {
-      id: `conv-${Date.now()}`,
-      title: "New Conversation",
-      timestamp: new Date(),
-      messages: [],
-    }
-    setConversations((prev) => [newConv, ...prev])
-    setActiveConversationId(newConv.id)
-  }, [])
-
-  const handleDeleteConversation = useCallback(
-    (id: string) => {
-      setConversations((prev) => prev.filter((c) => c.id !== id))
-      if (activeConversationId === id) {
-        setActiveConversationId(null)
+  const onMessage = useCallback(
+    (convId: string, msg: ConversationMessageEvent["message"]) => {
+      setTypingByConv((prev) => {
+        const next = new Map(prev)
+        next.delete(convId)
+        return next
+      })
+      if (activeIdRef.current === convId) {
+        const assistantMsg: CachedMessage = {
+          id: msg.id,
+          role: "ASSISTANT",
+          content: msg.content,
+          createdAt: new Date(msg.createdAt),
+        }
+        setPendingByConv((prev) => {
+          const next = new Map(prev)
+          const list = next.get(convId) ?? []
+          next.set(convId, [...list, assistantMsg])
+          return next
+        })
+      } else {
+        queryClient.invalidateQueries({
+          queryKey: FETCH_CONVERSATION_KEYS(convId),
+        })
       }
     },
-    [activeConversationId]
+    [queryClient]
   )
+
+  useAblyChannels({
+    userId: userId ?? null,
+    conversationIds: subscribeIds,
+    onThinking,
+    onMessage,
+  })
+
+  const activeConversation: ConversationWithMessages | null = useMemo(() => {
+    if (!activeConversationId) return null
+    const base = data && data.id === activeConversationId ? data : null
+    return {
+      id: activeConversationId,
+      userId: userId ?? "",
+      title: base?.title ?? "New Conversation",
+      createdAt: base?.createdAt ?? new Date(),
+      updatedAt: base?.updatedAt ?? new Date(),
+      messages: messages as Message[],
+    } as ConversationWithMessages
+  }, [activeConversationId, data, messages, userId])
+
+  const isTyping =
+    (activeConversationId && typingByConv.get(activeConversationId)) ?? false
+
+  const handleNewConversation = useCallback(() => {
+    createConversation.mutate(undefined, {
+      onSuccess: (res: { id: string }) => setActiveConversationId(res.id),
+    })
+  }, [createConversation])
+
+  const handleConversationCreated = useCallback((id: string) => {
+    setActiveConversationId(id)
+  }, [])
+
+  const handleConversationDeleted = useCallback((id: string) => {
+    if (activeConversationId === id) setActiveConversationId(null)
+    setPendingByConv((prev) => {
+      const next = new Map(prev)
+      next.delete(id)
+      return next
+    })
+    setTypingByConv((prev) => {
+      const next = new Map(prev)
+      next.delete(id)
+      return next
+    })
+  }, [activeConversationId])
 
   const handleSendMessage = useCallback(
     (content: string) => {
-      if (!activeConversationId) {
-        const newConv: Conversation = {
-          id: `conv-${Date.now()}`,
-          title: content.slice(0, 40) + (content.length > 40 ? "..." : ""),
-          timestamp: new Date(),
-          messages: [],
-        }
-        setConversations((prev) => [newConv, ...prev])
-        setActiveConversationId(newConv.id)
+      if (!activeConversationId) return
 
-        setTimeout(() => {
-          const userMsg: Message = {
-            id: `msg-${Date.now()}`,
-            role: "user",
-            content,
-            timestamp: new Date(),
-          }
-          setConversations((prev) =>
-            prev.map((c) =>
-              c.id === newConv.id
-                ? { ...c, messages: [...c.messages, userMsg] }
-                : c
-            )
-          )
-          simulateResponse(newConv.id)
-        }, 50)
-        return
-      }
-
-      const userMsg: Message = {
+      const userMsg: CachedMessage = {
         id: `msg-${Date.now()}`,
-        role: "user",
+        role: "USER",
         content,
-        timestamp: new Date(),
+        createdAt: new Date(),
       }
 
-      setConversations((prev) =>
-        prev.map((c) =>
-          c.id === activeConversationId
-            ? { ...c, messages: [...c.messages, userMsg] }
-            : c
-        )
-      )
-
-      simulateResponse(activeConversationId)
+      setTypingByConv((prev) => {
+        const next = new Map(prev)
+        next.set(activeConversationId, true)
+        return next
+      })
+      setPendingByConv((prev) => {
+        const next = new Map(prev)
+        const list = next.get(activeConversationId) ?? serverMessages
+        next.set(activeConversationId, [...list, userMsg])
+        return next
+      })
+      sendMessage.mutate({ conversationId: activeConversationId, content })
     },
-    [activeConversationId, simulateResponse]
+    [activeConversationId, serverMessages, sendMessage]
   )
 
   return {
-    conversations,
     activeConversationId,
     setActiveConversationId,
     activeConversation,
+    isConversationLoading:
+      conversationQuery.isLoading || conversationQuery.isFetching,
     isTyping,
     handleNewConversation,
-    handleDeleteConversation,
+    handleConversationCreated,
+    handleConversationDeleted,
     handleSendMessage,
   }
 }

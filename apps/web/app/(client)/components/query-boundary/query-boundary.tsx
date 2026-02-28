@@ -2,9 +2,10 @@
 
 import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { redirect } from "next/navigation"
+
+import { EmptyState } from "./components/empty-state"
 import { ErrorState } from "./components/error-state"
 import { LoadingState } from "./components/loading-state"
-import { EmptyState } from "./components/empty-state"
 
 type QueryData<T extends readonly UseQueryResult<unknown, Error>[]> = {
   [K in keyof T]: T[K] extends UseQueryResult<infer D, Error> ? D : never
@@ -33,21 +34,24 @@ function isEmpty(data: unknown): boolean {
 export function QueryBoundary<
   TQueries extends readonly UseQueryResult<unknown, Error>[],
   TMutations extends readonly UseMutationResult<unknown, Error, unknown>[] = []
->({
-  queries,
-  mutations = [] as unknown as TMutations,
-  showEmptyWhenNoData = false,
-  redirectWhen,
-  loadingMessage = "Loading…",
-  emptyTitle = "No data",
-  emptyDescription = "There's nothing here yet.",
-  children,
-}: QueryBoundaryProps<TQueries, TMutations>) {
+>(props: QueryBoundaryProps<TQueries, TMutations>) {
+  const {
+    queries,
+    mutations = [] as unknown as TMutations,
+    showEmptyWhenNoData = false,
+    redirectWhen,
+    loadingMessage = "Loading…",
+    emptyTitle = "No data",
+    emptyDescription = "There's nothing here yet.",
+    children,
+  } = props
+
   const anyLoading = queries.some((q) => q.isLoading || q.isPending)
   const anyMutationPending = mutations.some((m) => m.isPending)
   const anyError = queries.find((q) => q.isError)
   const anyEmpty =
-    showEmptyWhenNoData && queries.some((q) => !q.isLoading && !q.isError && isEmpty(q.data))
+    showEmptyWhenNoData &&
+    queries.some((q) => !q.isLoading && !q.isError && isEmpty(q.data))
 
   const handleRetry = () => {
     queries.forEach((q) => q.refetch?.())
@@ -56,7 +60,9 @@ export function QueryBoundary<
   if (anyLoading || anyMutationPending) {
     return (
       <LoadingState
-        message={anyMutationPending && !anyLoading ? "Saving…" : loadingMessage}
+        message={
+          anyMutationPending && !anyLoading ? "Saving…" : loadingMessage
+        }
       />
     )
   }
@@ -64,7 +70,11 @@ export function QueryBoundary<
   if (anyError) {
     return (
       <ErrorState
-        message={anyError.error instanceof Error ? anyError.error.message : "Something went wrong"}
+        message={
+          anyError.error instanceof Error
+            ? anyError.error.message
+            : "Something went wrong"
+        }
         onRetry={handleRetry}
       />
     )

@@ -2,7 +2,6 @@
 
 import {
   MessageSquare,
-  Bot,
   Database,
   PanelLeftClose,
   PanelLeft,
@@ -16,11 +15,10 @@ import {
 import { cn } from "@/(client)/libs/utils"
 import { APP_NAME } from "@/(client)/libs/constants"
 import { useSidebarExpanded } from "@/(client)/hooks/use-sidebar-expanded"
-import type { SidebarSection } from "@/(client)/libs/store"
+import type { SidebarSection } from "@/(client)/libs/types"
 
 const navItems: { icon: React.ElementType; label: string; section: SidebarSection }[] = [
   { icon: MessageSquare, label: "Conversations", section: "conversations" },
-  { icon: Bot, label: "Agents", section: "agents" },
   { icon: Database, label: "Knowledge Base", section: "knowledge" },
 ]
 

@@ -3,16 +3,21 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev",
-    "start": "turbo start",
+    "dev": "turbo dev --filter='!@repo/worker'",
+    "start": "turbo start --filter='!@repo/worker'",
     "lint": "turbo lint",
     "clean": "turbo clean && rm -rf node_modules",
     "db:generate": "turbo db:generate --filter=@repo/database",
     "db:push": "turbo db:push --filter=@repo/database",
-    "db:studio": "turbo db:studio --filter=@repo/database"
+    "db:studio": "turbo db:studio --filter=@repo/database",
+    "worker": "turbo dev --filter=@repo/worker",
+    "worker:start": "turbo start --filter=@repo/worker"
   },
   "devDependencies": {
-    "turbo": "^2.3.0"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.2",
+    "turbo": "^2.3.0",
+    "typescript-eslint": "^8.56.1"
   },
   "packageManager": "npm@10.9.2",
   "workspaces": [
