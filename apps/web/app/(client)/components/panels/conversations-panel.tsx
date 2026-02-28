@@ -2,10 +2,12 @@
 
 import { AnimatePresence, motion } from "framer-motion"
 import { Plus, Pencil, Trash2 } from "lucide-react"
-import { ScrollArea } from "@/(client)/components/ui/scroll-area"
+
 import { Button } from "@/(client)/components/ui/button"
+import { ScrollArea } from "@/(client)/components/ui/scroll-area"
 import { formatTimestamp } from "@/(client)/libs/date-utils"
 import { cn } from "@/(client)/libs/utils"
+
 import type { Conversation } from "@/(client)/libs/store"
 
 interface ConversationsPanelProps {
@@ -16,19 +18,21 @@ interface ConversationsPanelProps {
   onDeleteConversation: (id: string) => void
 }
 
-export function ConversationsPanel({
-  conversations,
-  activeConversationId,
-  onSelectConversation,
-  onNewConversation,
-  onDeleteConversation,
-}: ConversationsPanelProps) {
+export function ConversationsPanel(props: ConversationsPanelProps) {
+  const {
+    conversations,
+    activeConversationId,
+    onSelectConversation,
+    onNewConversation,
+    onDeleteConversation,
+  } = props
+
   return (
     <div className="flex h-full flex-col">
       <div className="p-3">
         <Button
           onClick={onNewConversation}
-          className="w-full justify-start gap-2 bg-primary/10 text-primary hover:bg-primary/20 border-0"
+          className="w-full justify-start gap-2 border-0 bg-primary/10 text-primary hover:bg-primary/20"
           variant="outline"
           size="sm"
         >

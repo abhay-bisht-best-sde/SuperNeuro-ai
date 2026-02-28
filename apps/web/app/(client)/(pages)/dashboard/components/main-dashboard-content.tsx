@@ -1,27 +1,28 @@
 "use client"
 
 import { useState, memo } from "react"
+
+import { AddKnowledgeBaseModal } from "@/(client)/components/modal/add-knowledge-base-modal"
 import { TopNavbar } from "@/(client)/components/layout/top-navbar"
 import { ChatWorkspace } from "@/(client)/components/workspace/chat-workspace"
-import { AddKnowledgeBaseModal } from "@/(client)/components/modal/add-knowledge-base-modal"
 import { SidebarTogglePanel } from "./sidebar-toggle-panel"
+import { useRetryKnowledgeBase } from "@/(client)/components/query-boundary"
+
 import type {
   SidebarSection,
   Conversation,
-  Agent,
-} from "../../../libs/store"
-import { sampleAgents } from "../../../libs/store"
+} from "@/(client)/libs/store";
 
 interface MainDashboardContentProps {
   activeSection: SidebarSection
   conversations: Conversation[]
   activeConversationId: string | null
+  activeConversation: Conversation | null
+  isTyping: boolean
   onSelectConversation: (id: string) => void
   onNewConversation: () => void
   onDeleteConversation: (id: string) => void
   onSendMessage: (content: string) => void
-  activeConversation: Conversation | null
-  isTyping: boolean
 }
 
 function MainDashboardContentInner(props: MainDashboardContentProps) {
@@ -29,15 +30,17 @@ function MainDashboardContentInner(props: MainDashboardContentProps) {
     activeSection,
     conversations,
     activeConversationId,
+    activeConversation,
+    isTyping,
     onSelectConversation,
     onNewConversation,
     onDeleteConversation,
     onSendMessage,
-    activeConversation,
-    isTyping,
   } = props
+
   const [kbModalOpen, setKbModalOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const retryKnowledgeBase = useRetryKnowledgeBase()
 
   return (
     <>
@@ -48,19 +51,19 @@ function MainDashboardContentInner(props: MainDashboardContentProps) {
           activeSection={activeSection}
           conversations={conversations}
           activeConversationId={activeConversationId}
+          sidebarOpen={sidebarOpen}
+          agents={[]}
           onSelectConversation={onSelectConversation}
           onNewConversation={onNewConversation}
           onDeleteConversation={onDeleteConversation}
-          agents={sampleAgents}
           onAddKnowledgeBase={() => setKbModalOpen(true)}
-          onRetryKnowledgeBase={() => {}}
-          sidebarOpen={sidebarOpen}
+          onRetryKnowledgeBase={(id) => retryKnowledgeBase.mutate(id)}
         >
           <ChatWorkspace
             conversation={activeConversation}
-            onSendMessage={onSendMessage}
             isTyping={isTyping}
             sidebarOpen={sidebarOpen}
+            onSendMessage={onSendMessage}
             onSidebarToggle={() => setSidebarOpen((prev) => !prev)}
           />
         </SidebarTogglePanel>

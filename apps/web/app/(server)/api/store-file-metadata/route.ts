@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/core/prisma";
 import { KnowledgeBaseIndexingStatus } from "@repo/database";
-import { createFileUploadMessage } from "@repo/database/types";
+import { createPdfIndexMessage } from "@repo/database/types";
 import { logger } from "@/core/logger";
-import { sqsPublisher } from "@/(server)/lib/publishers";
+import { pdfIndexingPublisher } from "@/(server)/lib/publishers";
 import {
   requireAuth,
   validateBodySize,
@@ -11,8 +11,11 @@ import {
   MAX_BODY_SIZE_KB,
 } from "@/(server)/lib/api";
 
+const log = logger.withTag("api/store-file-metadata");
+
 export async function POST(request: Request) {
   try {
+    log.info("Store file metadata request");
     const authResult = await requireAuth();
     if (authResult instanceof NextResponse) return authResult;
     const userId = authResult;
@@ -31,18 +34,21 @@ export async function POST(request: Request) {
     };
 
     if (!fileName || typeof fileName !== "string") {
+      log.warn("Validation failed: fileName required", { body: { fileName, fileSize, key } });
       return NextResponse.json(
         { error: "fileName is required and must be a string" },
         { status: 400 }
       );
     }
     if (typeof fileSize !== "number" || fileSize < 0) {
+      log.warn("Validation failed: invalid fileSize", { fileSize });
       return NextResponse.json(
         { error: "fileSize is required and must be a non-negative number" },
         { status: 400 }
       );
     }
     if (!key || typeof key !== "string") {
+      log.warn("Validation failed: key required", { body: { fileName, fileSize, key } });
       return NextResponse.json(
         { error: "key is required and must be a string" },
         { status: 400 }
@@ -56,6 +62,7 @@ export async function POST(request: Request) {
       where: { key, userId },
     });
     if (existing) {
+      log.debug("File already exists", { key, userId });
       return NextResponse.json({ success: true });
     }
 
@@ -65,27 +72,35 @@ export async function POST(request: Request) {
         fileName,
         fileSize,
         key,
-        indexingStatus: KnowledgeBaseIndexingStatus.pending,
+        indexingStatus: KnowledgeBaseIndexingStatus.PENDING,
       },
     });
 
-    if (sqsPublisher) {
-      const message = createFileUploadMessage({
+    if (pdfIndexingPublisher) {
+      const message = createPdfIndexMessage({
         fileId: file.id,
         key: file.key,
         userId: file.userId,
         fileName: file.fileName,
         fileSize: file.fileSize,
       });
-      await sqsPublisher.publish(message, {
+      await pdfIndexingPublisher.publish(message, {
+        groupId: file.id,
         deduplicationId: file.id,
-        groupId: file.userId,
       });
+      log.success("File metadata stored and PDF indexing queued", {
+        fileId: file.id,
+        fileName: file.fileName,
+      });
+    } else {
+      log.error(
+        "PDF indexing queue not configured: AWS_SQS_PDF_INDEXING_QUEUE_URL is missing or invalid. File metadata saved but indexing will not run."
+      );
     }
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    logger.withTag("api/store-file-metadata").error("Store metadata failed", err);
+    log.error("Store metadata failed", err);
     return NextResponse.json(
       { error: "Failed to store file metadata" },
       { status: 500 }

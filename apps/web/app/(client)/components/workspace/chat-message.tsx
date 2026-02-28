@@ -2,9 +2,11 @@
 
 import { motion } from "framer-motion"
 import { Copy, ThumbsUp, Volume2, RefreshCcw, Sparkles } from "lucide-react"
-import { Button } from "@/(client)/components/ui/button"
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/(client)/components/ui/avatar"
+import { Button } from "@/(client)/components/ui/button"
 import { cn } from "@/(client)/libs/utils"
+
 import type { Message } from "@/(client)/libs/store"
 
 interface ChatMessageProps {
@@ -12,7 +14,9 @@ interface ChatMessageProps {
   index: number
 }
 
-export function ChatMessage({ message, index }: ChatMessageProps) {
+export function ChatMessage(props: ChatMessageProps) {
+  const { message, index } = props
+
   const isUser = message.role === "user"
 
   return (
@@ -44,7 +48,7 @@ export function ChatMessage({ message, index }: ChatMessageProps) {
             "rounded-2xl px-4 py-3",
             isUser
               ? "bg-gradient-to-br from-primary to-accent text-primary-foreground"
-              : "bg-card border border-border text-foreground"
+              : "border border-border bg-card text-foreground"
           )}
         >
           <p className="whitespace-pre-wrap text-sm leading-relaxed">
@@ -59,20 +63,36 @@ export function ChatMessage({ message, index }: ChatMessageProps) {
             transition={{ delay: 0.3 }}
             className="mt-2 flex items-center gap-1"
           >
-            <Button variant="ghost" size="icon-sm" className="h-7 w-7 rounded-lg hover:bg-primary/20">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="h-7 w-7 rounded-lg hover:bg-primary/20"
+            >
               <Copy className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="sr-only">Copy</span>
             </Button>
-            <Button variant="ghost" size="icon-sm" className="h-7 w-7 rounded-lg hover:bg-primary/20">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="h-7 w-7 rounded-lg hover:bg-primary/20"
+            >
               <ThumbsUp className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="sr-only">Like</span>
             </Button>
-            <Button variant="ghost" size="icon-sm" className="h-7 w-7 rounded-lg hover:bg-primary/20">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="h-7 w-7 rounded-lg hover:bg-primary/20"
+            >
               <Volume2 className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="sr-only">Read aloud</span>
             </Button>
             <div className="flex-1" />
-            <Button variant="ghost" size="icon-sm" className="h-7 w-7 rounded-lg hover:bg-primary/20">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="h-7 w-7 rounded-lg hover:bg-primary/20"
+            >
               <RefreshCcw className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="sr-only">Regenerate</span>
             </Button>

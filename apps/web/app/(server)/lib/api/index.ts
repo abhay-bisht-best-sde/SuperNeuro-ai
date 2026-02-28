@@ -11,5 +11,5 @@ export {
   SIGNED_URL_EXPIRES_SEC,
   MAX_PART_NUMBER,
 } from "./constants";
-export { getR2Bucket } from "./r2";
+export { getR2FilesBucket, getR2ImagesBucket } from "./r2";
 export { validateBodySize, validateUserKey } from "./validation";

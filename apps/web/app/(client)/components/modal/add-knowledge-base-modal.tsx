@@ -1,5 +1,7 @@
 "use client"
 
+import { useQueryClient } from "@tanstack/react-query"
+
 import {
   Dialog,
   DialogContent,
@@ -7,22 +9,30 @@ import {
   DialogTitle,
 } from "@/(client)/components/ui/dialog"
 import { FileUploader } from "@/(client)/components/FileUploader"
-import { useStoreFileMetadata } from "@/(client)/components/query-boundary"
+import {
+  useStoreFileMetadata,
+  FETCH_KNOWLEDGE_BASE_KEYS,
+} from "@/(client)/components/query-boundary"
 
 interface AddKnowledgeBaseModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-export function AddKnowledgeBaseModal({
-  open,
-  onOpenChange,
-}: AddKnowledgeBaseModalProps) {
+export function AddKnowledgeBaseModal(props: AddKnowledgeBaseModalProps) {
+  const { open, onOpenChange } = props
+
+  const queryClient = useQueryClient()
   const storeFileMetadata = useStoreFileMetadata()
+
+  const handleUploadComplete = async () => {
+    await queryClient.invalidateQueries({ queryKey: FETCH_KNOWLEDGE_BASE_KEYS })
+    onOpenChange(false)
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-card border-border sm:max-w-fit">
+      <DialogContent className="border-border bg-card sm:max-w-fit">
         <DialogHeader>
           <DialogTitle className="text-foreground">
             Add Knowledge Base
@@ -31,7 +41,7 @@ export function AddKnowledgeBaseModal({
         <div className="mt-4 flex flex-col gap-3">
           <FileUploader
             storeFileMetadata={(data) => storeFileMetadata.mutateAsync(data)}
-            onUploadComplete={() => onOpenChange(false)}
+            onUploadComplete={handleUploadComplete}
           />
         </div>
       </DialogContent>

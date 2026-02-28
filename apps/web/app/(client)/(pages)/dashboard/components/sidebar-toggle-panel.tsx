@@ -1,40 +1,44 @@
 "use client"
 
 import { AnimatePresence, motion } from "framer-motion"
+
 import { SecondarySidebar } from "@/(client)/components/layout/secondary-sidebar"
+
 import type {
   SidebarSection,
   Conversation,
   Agent,
-} from "../../../libs/store"
+} from "@/(client)/libs/store"
 
 interface SidebarTogglePanelProps {
   activeSection: SidebarSection
   conversations: Conversation[]
   activeConversationId: string | null
+  agents: Agent[]
+  sidebarOpen: boolean
+  children: React.ReactNode
   onSelectConversation: (id: string) => void
   onNewConversation: () => void
   onDeleteConversation: (id: string) => void
-  agents: Agent[]
   onAddKnowledgeBase: () => void
   onRetryKnowledgeBase: (id: string) => void
-  sidebarOpen: boolean
-  children: React.ReactNode
 }
 
-export function SidebarTogglePanel({
-  activeSection,
-  conversations,
-  activeConversationId,
-  onSelectConversation,
-  onNewConversation,
-  onDeleteConversation,
-  agents,
-  onAddKnowledgeBase,
-  onRetryKnowledgeBase,
-  sidebarOpen,
-  children,
-}: SidebarTogglePanelProps) {
+export function SidebarTogglePanel(props: SidebarTogglePanelProps) {
+  const {
+    activeSection,
+    conversations,
+    activeConversationId,
+    agents,
+    sidebarOpen,
+    children,
+    onSelectConversation,
+    onNewConversation,
+    onDeleteConversation,
+    onAddKnowledgeBase,
+    onRetryKnowledgeBase,
+  } = props
+
   return (
     <>
       <AnimatePresence mode="wait">
@@ -50,13 +54,13 @@ export function SidebarTogglePanel({
               activeSection={activeSection}
               conversations={conversations}
               activeConversationId={activeConversationId}
+              agents={agents}
+              isOpen={true}
               onSelectConversation={onSelectConversation}
               onNewConversation={onNewConversation}
               onDeleteConversation={onDeleteConversation}
-              agents={agents}
               onAddKnowledgeBase={onAddKnowledgeBase}
               onRetryKnowledgeBase={onRetryKnowledgeBase}
-              isOpen={true}
             />
           </motion.div>
         )}

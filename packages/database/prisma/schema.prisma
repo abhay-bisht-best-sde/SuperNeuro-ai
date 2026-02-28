@@ -6,7 +6,7 @@ generator client {
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
-}
+} 
 
 model UserConfig {
   id                  String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -23,21 +23,50 @@ model UserConfig {
 }
 
 enum KnowledgeBaseIndexingStatus {
-  pending
-  indexing
-  indexed
-  completed
-  error
+  PENDING
+  INDEXING
+  INDEXED
+  ERROR
+}
+
+enum ImageProcessingStatus {
+  PENDING
+  INDEXING
+  INDEXED
+  ERROR
 }
 
 model KnowledgeBase {
-  id             String                     @id @default(auto()) @map("_id") @db.ObjectId
-  userId         String
-  fileName       String
-  fileSize       Int
-  key            String
-  indexingStatus KnowledgeBaseIndexingStatus @default(pending)
+  id                  String                     @id @default(auto()) @map("_id") @db.ObjectId
+  userId              String
+  fileName            String
+  fileSize            Int
+  key                 String
+  indexingStatus      KnowledgeBaseIndexingStatus @default(PENDING)
+  embeddingIds        String[]                    @default([])
+  processingAttempts  Int                        @default(0)
+  errorMessage        String?
+  images              KnowledgeBaseImages[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model KnowledgeBaseImages {
+  id               String                 @id @default(auto()) @map("_id") @db.ObjectId
+  knowledgeBaseId  String                 @db.ObjectId
+  knowledgeBase    KnowledgeBase          @relation(fields: [knowledgeBaseId], references: [id], onDelete: Cascade)
+  r2Key            String
+  pageNumber       Int
+  indexingStatus   ImageProcessingStatus   @default(PENDING)
+  textSummary      String?
+  embeddingId      String?
+  processingAttempts Int                  @default(0)
+  errorMessage     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([knowledgeBaseId])
+  @@index([indexingStatus])
 }

@@ -1,11 +1,13 @@
 "use client"
 
 import { AnimatePresence, motion } from "framer-motion"
-import type { SidebarSection, Conversation, Agent } from "@/(client)/libs/store"
-import { ConversationsPanel } from "@/(client)/components/panels/conversations-panel"
+
 import { AgentsPanel } from "@/(client)/components/panels/agents-panel"
+import { ConversationsPanel } from "@/(client)/components/panels/conversations-panel"
 import { KnowledgePanel } from "@/(client)/components/panels/knowledge-panel"
 import { useKnowledgeBase, QueryBoundary } from "@/(client)/components/query-boundary"
+
+import type { SidebarSection, Conversation, Agent } from "@/(client)/libs/store"
 
 const sectionTitles: Record<SidebarSection, string> = {
   conversations: "Conversations",
@@ -17,13 +19,13 @@ interface SecondarySidebarProps {
   activeSection: SidebarSection
   conversations: Conversation[]
   activeConversationId: string | null
+  agents: Agent[]
+  isOpen: boolean
   onSelectConversation: (id: string) => void
   onNewConversation: () => void
   onDeleteConversation: (id: string) => void
-  agents: Agent[]
   onAddKnowledgeBase: () => void
   onRetryKnowledgeBase: (id: string) => void
-  isOpen: boolean
 }
 
 export function SecondarySidebar(props: SecondarySidebarProps) {
@@ -31,15 +33,17 @@ export function SecondarySidebar(props: SecondarySidebarProps) {
     activeSection,
     conversations,
     activeConversationId,
+    agents,
+    isOpen,
     onSelectConversation,
     onNewConversation,
     onDeleteConversation,
-    agents,
     onAddKnowledgeBase,
     onRetryKnowledgeBase,
-    isOpen,
   } = props
+
   const knowledgeBaseQuery = useKnowledgeBase()
+
   if (!isOpen) return null
 
   return (

@@ -10,12 +10,18 @@ const log = logger.withTag("api/user-config");
 
 export async function GET() {
   try {
+    log.info("Get user config request");
     const authResult = await requireAuth();
     if (authResult instanceof NextResponse) return authResult;
 
     const userConfig = await prisma.userConfig.findUnique({
       where: { userId: authResult },
     });
+    if (userConfig) {
+      log.success("User config fetched", { userId: authResult });
+    } else {
+      log.debug("User config not found", { userId: authResult });
+    }
     return NextResponse.json(userConfig);
   } catch (err) {
     log.error("User config fetch failed", err);
@@ -25,6 +31,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    log.info("Create user config request");
     const authResult = await requireAuth();
     if (authResult instanceof NextResponse) return authResult;
     const userId = authResult;

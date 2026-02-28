@@ -1,6 +1,7 @@
 export {
   createSqsPublisher,
-  sqsPublisher,
+  pdfIndexingPublisher,
+  imageProcessingPublisher,
   type SqsPublisher,
   type SqsPublisherOptions,
   type SqsPublishOptions,

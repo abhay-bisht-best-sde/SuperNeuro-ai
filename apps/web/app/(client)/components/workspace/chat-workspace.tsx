@@ -3,11 +3,13 @@
 import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Send, Paperclip, Sparkles, PanelLeftClose, PanelLeft } from "lucide-react"
-import { ScrollArea } from "@/(client)/components/ui/scroll-area"
+
 import { Button } from "@/(client)/components/ui/button"
+import { ScrollArea } from "@/(client)/components/ui/scroll-area"
 import { Textarea } from "@/(client)/components/ui/textarea"
-import { TypingIndicator } from "./typing-indicator"
 import { ChatMessage } from "./chat-message"
+import { TypingIndicator } from "./typing-indicator"
+
 import type { Conversation } from "@/(client)/libs/store"
 
 const SUGGESTIONS = [
@@ -19,19 +21,21 @@ const SUGGESTIONS = [
 
 interface ChatWorkspaceProps {
   conversation: Conversation | null
-  onSendMessage: (content: string) => void
   isTyping: boolean
   sidebarOpen?: boolean
+  onSendMessage: (content: string) => void
   onSidebarToggle?: () => void
 }
 
-export function ChatWorkspace({
-  conversation,
-  onSendMessage,
-  isTyping,
-  sidebarOpen = true,
-  onSidebarToggle,
-}: ChatWorkspaceProps) {
+export function ChatWorkspace(props: ChatWorkspaceProps) {
+  const {
+    conversation,
+    isTyping,
+    sidebarOpen = true,
+    onSendMessage,
+    onSidebarToggle,
+  } = props
+
   const [inputValue, setInputValue] = useState("")
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -103,10 +107,10 @@ export function ChatWorkspace({
               <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
                 <Sparkles className="h-8 w-8 text-primary" />
               </div>
-              <h1 className="mb-2 text-xl font-semibold text-foreground text-balance text-center">
+              <h1 className="mb-2 text-center text-xl font-semibold text-foreground text-balance">
                 How can I help you today?
               </h1>
-              <p className="mb-8 text-sm text-muted-foreground text-balance text-center">
+              <p className="mb-8 text-center text-sm text-muted-foreground text-balance">
                 Ask anything or use an agent to get started
               </p>
 
@@ -122,7 +126,11 @@ export function ChatWorkspace({
                     className="min-h-0 w-full resize-none rounded-2xl border-border bg-card px-4 py-3 pr-24 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
                   />
                   <div className="absolute right-2 bottom-2 flex items-center gap-1">
-                    <Button variant="ghost" size="icon-sm" className="h-8 w-8 rounded-xl hover:bg-primary/20">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="h-8 w-8 rounded-xl hover:bg-primary/20"
+                    >
                       <Paperclip className="h-4 w-4 text-muted-foreground" />
                       <span className="sr-only">Attach file</span>
                     </Button>
@@ -198,7 +206,11 @@ export function ChatWorkspace({
                     className="min-h-0 w-full resize-none rounded-2xl border-border bg-card px-4 py-3 pr-24 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
                   />
                   <div className="absolute right-2 bottom-2 flex items-center gap-1">
-                    <Button variant="ghost" size="icon-sm" className="h-8 w-8 rounded-xl hover:bg-primary/20">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="h-8 w-8 rounded-xl hover:bg-primary/20"
+                    >
                       <Paperclip className="h-4 w-4 text-muted-foreground" />
                       <span className="sr-only">Attach file</span>
                     </Button>

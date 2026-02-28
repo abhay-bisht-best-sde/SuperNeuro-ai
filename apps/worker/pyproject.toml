@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "worker"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "boto3>=1.42.59",
+    "botocore>=1.42.59",
+    "fastapi>=0.134.0",
+    "llama-index>=0.14.15",
+    "llama-index-embeddings-openai>=0.5.1",
+    "llama-index-vector-stores-pinecone>=0.7.1",
+    "numpy>=2.4.2",
+    "openai>=2.24.0",
+    "opencv-python-headless>=4.13.0.92",
+    "pillow>=12.1.1",
+    "pinecone-client>=6.0.0",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.0.0",
+    "pymongo>=4.16.0",
+    "pymupdf>=1.27.1",
+    "python-dotenv>=1.2.1",
+    "uvicorn>=0.41.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

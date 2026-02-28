@@ -67,10 +67,15 @@ export function createSqsPublisher(options: SqsPublisherOptions): SqsPublisher {
   };
 }
 
-const queueUrl = process.env.AWS_SQS_QUEUE_URL;
-const isFifo = queueUrl?.endsWith(".fifo") ?? false;
+const pdfQueueUrl = process.env.AWS_SQS_PDF_INDEXING_QUEUE_URL;
+const pdfQueueIsFifo = pdfQueueUrl?.endsWith(".fifo") ?? false;
+export const pdfIndexingPublisher =
+  pdfQueueUrl && pdfQueueUrl.length > 0
+    ? createSqsPublisher({ queueUrl: pdfQueueUrl, fifo: pdfQueueIsFifo })
+    : null;
 
-export const sqsPublisher =
-  queueUrl && queueUrl.length > 0
-    ? createSqsPublisher({ queueUrl, fifo: isFifo })
+const imageQueueUrl = process.env.AWS_SQS_IMAGE_PROCESSING_QUEUE_URL;
+export const imageProcessingPublisher =
+  imageQueueUrl && imageQueueUrl.length > 0
+    ? createSqsPublisher({ queueUrl: imageQueueUrl, fifo: true })
     : null;

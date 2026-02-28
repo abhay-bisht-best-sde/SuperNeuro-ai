@@ -2,28 +2,28 @@
 
 import { motion } from "framer-motion"
 import { Plus, FileText } from "lucide-react"
-import { ScrollArea } from "@/(client)/components/ui/scroll-area"
+
 import { Button } from "@/(client)/components/ui/button"
+import { ScrollArea } from "@/(client)/components/ui/scroll-area"
 import { StatusIndicator } from "./status-indicator"
-import type { KnowledgeBase } from "@/(client)/libs/store"
+
+import type { KnowledgeBaseListItem } from "@repo/database/types"
 
 interface KnowledgePanelProps {
-  knowledgeBases: KnowledgeBase[]
+  knowledgeBases: KnowledgeBaseListItem[]
   onAddKnowledgeBase: () => void
   onRetry: (id: string) => void
 }
 
-export function KnowledgePanel({
-  knowledgeBases,
-  onAddKnowledgeBase,
-  onRetry,
-}: KnowledgePanelProps) {
+export function KnowledgePanel(props: KnowledgePanelProps) {
+  const { knowledgeBases, onAddKnowledgeBase, onRetry } = props
+
   return (
     <div className="flex h-full flex-col">
       <div className="p-3">
         <Button
           onClick={onAddKnowledgeBase}
-          className="w-full justify-start gap-2 bg-primary/10 text-primary hover:bg-primary/20 border-0"
+          className="w-full justify-start gap-2 border-0 bg-primary/10 text-primary hover:bg-primary/20"
           variant="outline"
           size="sm"
         >
@@ -53,18 +53,28 @@ export function KnowledgePanel({
                 <span>Document</span>
                 <span>
                   Updated{" "}
-                  {kb.lastUpdated.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  })}
+                  {kb.lastUpdated
+                    ? kb.lastUpdated.toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                      })
+                    : "—"}
                 </span>
               </div>
 
               <StatusIndicator
                 status={kb.status}
                 progress={kb.progress}
+                errorMessage={kb.errorMessage}
+                processingAttempts={kb.processingAttempts ?? 0}
                 onRetry={() => onRetry(kb.id)}
               />
+
+              {kb.totalImages > 0 && (
+                <div className="mt-2 text-xs text-muted-foreground">
+                  Images indexed: {kb.imagesIndexed} / {kb.totalImages}
+                </div>
+              )}
             </motion.div>
           ))}
         </div>

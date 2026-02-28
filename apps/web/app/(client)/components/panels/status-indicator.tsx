@@ -1,28 +1,41 @@
 "use client"
 
-import { Loader2, RotateCcw } from "lucide-react"
-import { Button } from "@/(client)/components/ui/button"
+import { Clock, RotateCcw } from "lucide-react"
+
 import { Badge } from "@/(client)/components/ui/badge"
+import { Button } from "@/(client)/components/ui/button"
 import { Progress } from "@/(client)/components/ui/progress"
-import type { KnowledgeBase } from "@/(client)/libs/store"
-import { KnowledgeBaseIndexingStatus } from "@repo/database/types"
+
+import { KnowledgeBaseIndexingStatus } from "@repo/database/types";
+
+const MAX_RETRY_ATTEMPTS = 3;
 
 interface StatusIndicatorProps {
-  status: KnowledgeBase["status"]
+  status: KnowledgeBaseIndexingStatus;
   progress?: number
+  errorMessage?: string | null
+  processingAttempts?: number
   onRetry?: () => void
 }
 
-export function StatusIndicator({ status, progress, onRetry }: StatusIndicatorProps) {
+export function StatusIndicator(props: StatusIndicatorProps) {
+  const {
+    status,
+    progress,
+    errorMessage,
+    processingAttempts = 0,
+    onRetry,
+  } = props
+
   switch (status) {
-    case KnowledgeBaseIndexingStatus.pending:
+    case KnowledgeBaseIndexingStatus.PENDING:
       return (
         <div className="flex items-center gap-2">
-          <Loader2 className="h-3 w-3 animate-spin text-accent" />
-          <span className="text-xs text-accent">Chunking...</span>
+          <Clock className="h-3 w-3 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground">Pending</span>
         </div>
       )
-    case KnowledgeBaseIndexingStatus.indexing:
+    case KnowledgeBaseIndexingStatus.INDEXING:
       return (
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between">
@@ -34,8 +47,7 @@ export function StatusIndicator({ status, progress, onRetry }: StatusIndicatorPr
           <Progress value={progress ?? 0} className="h-1" />
         </div>
       )
-    case KnowledgeBaseIndexingStatus.indexed:
-    case KnowledgeBaseIndexingStatus.completed:
+    case KnowledgeBaseIndexingStatus.INDEXED:
       return (
         <Badge
           variant="secondary"
@@ -44,22 +56,33 @@ export function StatusIndicator({ status, progress, onRetry }: StatusIndicatorPr
           Completed
         </Badge>
       )
-    case KnowledgeBaseIndexingStatus.error:
+    case KnowledgeBaseIndexingStatus.ERROR:
       return (
-        <div className="flex items-center gap-2">
-          <Badge variant="destructive" className="text-xs">
-            Error
-          </Badge>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onRetry}
-            className="h-6 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
-          >
-            <RotateCcw className="h-3 w-3" />
-            Retry
-          </Button>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <Badge variant="destructive" className="text-xs">
+              Error
+            </Badge>
+            {processingAttempts >= MAX_RETRY_ATTEMPTS && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onRetry}
+                className="h-6 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <RotateCcw className="h-3 w-3" />
+                Retry
+              </Button>
+            )}
+          </div>
+          {errorMessage && (
+            <span className="line-clamp-2 text-xs text-destructive">
+              {errorMessage}
+            </span>
+          )}
         </div>
       )
+    default:
+      return null
   }
 }
