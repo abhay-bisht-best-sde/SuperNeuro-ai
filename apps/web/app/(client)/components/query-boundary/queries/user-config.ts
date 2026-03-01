@@ -3,9 +3,12 @@ import { useQuery } from "@tanstack/react-query"
 import type { UserConfigResponse } from "@repo/database/types"
 
 import { api } from "../api-client"
-import { QUERY_STALE_TIME_MS } from "@/(client)/libs/constants"
+import {
+  FETCH_USER_CONFIGS_KEYS,
+  QUERY_STALE_TIME_MS,
+} from "@/(client)/libs/constants"
 
-export const FETCH_USER_CONFIGS_KEYS = ["FETCH_USER_CONFIGS_KEY"]
+export { FETCH_USER_CONFIGS_KEYS }
 
 export function useFetchUserConfig() {
   return useQuery({

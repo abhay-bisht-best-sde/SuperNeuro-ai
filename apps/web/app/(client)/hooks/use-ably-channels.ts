@@ -8,6 +8,7 @@ import {
   ConversationEventType,
   getConversationChannelName,
   type ConversationEvent,
+  type ConversationGraphStageEvent,
   type ConversationMessageEvent,
 } from "@/libs/ably-types"
 
@@ -32,6 +33,10 @@ export interface UseAblyChannelsOptions {
   userId: string | null
   conversationIds: string[]
   onThinking: (conversationId: string) => void
+  onGraphStage: (
+    conversationId: string,
+    event: ConversationGraphStageEvent
+  ) => void
   onMessage: (
     conversationId: string,
     message: ConversationMessageEvent["message"]
@@ -43,12 +48,15 @@ export function useAblyChannels(options: UseAblyChannelsOptions): void {
     userId,
     conversationIds,
     onThinking,
+    onGraphStage,
     onMessage,
   } = options
 
   const onThinkingRef = useRef(onThinking)
+  const onGraphStageRef = useRef(onGraphStage)
   const onMessageRef = useRef(onMessage)
   onThinkingRef.current = onThinking
+  onGraphStageRef.current = onGraphStage
   onMessageRef.current = onMessage
 
   const conversationIdsKey = useMemo(
@@ -72,6 +80,8 @@ export function useAblyChannels(options: UseAblyChannelsOptions): void {
 
         if (event.type === ConversationEventType.THINKING) {
           onThinkingRef.current(conversationId)
+        } else if (event.type === ConversationEventType.GRAPH_STAGE) {
+          onGraphStageRef.current(conversationId, event)
         } else if (event.type === ConversationEventType.MESSAGE) {
           onMessageRef.current(conversationId, event.message)
         }

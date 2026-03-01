@@ -4,19 +4,13 @@ import { motion } from "framer-motion"
 import { Sparkles } from "lucide-react"
 
 import { Button } from "@/(client)/components/ui/button"
+import {
+  CHAT_HEADLINE,
+  CHAT_SUBHEADLINE,
+  CHAT_INPUT_PLACEHOLDER,
+  CHAT_SUGGESTIONS,
+} from "@/(client)/libs/constants"
 import { ChatInputBar } from "./chat-input-bar"
-
-const HEADLINE = "Your AI Research & Knowledge Workspace"
-const SUBHEADLINE =
-  "Your AI workspace for research, documentation, and team collaboration."
-const INPUT_PLACEHOLDER =
-  "Research AI hiring trends and share summary to Slack"
-
-const SUGGESTIONS = [
-  "Research competitors in my industry",
-  "Create a strategy document",
-  "Summarize unread emails",
-]
 
 interface IProps {
   inputValue: string
@@ -54,10 +48,10 @@ export function ChatWorkspaceWelcome(props: IProps) {
           <Sparkles className="h-8 w-8 text-primary" />
         </div>
         <h1 className="mb-2 text-center text-xl font-semibold text-foreground text-balance">
-          {HEADLINE}
+          {CHAT_HEADLINE}
         </h1>
         <p className="mb-8 text-center text-sm text-muted-foreground text-balance">
-          {SUBHEADLINE}
+          {CHAT_SUBHEADLINE}
         </p>
 
         <div className="mb-8 w-full max-w-xl">
@@ -67,12 +61,12 @@ export function ChatWorkspaceWelcome(props: IProps) {
             onChange={onInputChange}
             onKeyDown={onKeyDown}
             onSubmit={onSubmit}
-            placeholder={INPUT_PLACEHOLDER}
+            placeholder={CHAT_INPUT_PLACEHOLDER}
           />
         </div>
 
         <div className="flex flex-wrap justify-center gap-2">
-          {SUGGESTIONS.map((suggestion, index) => (
+          {CHAT_SUGGESTIONS.map((suggestion, index) => (
             <motion.div
               key={suggestion}
               initial={{ opacity: 0, y: 8 }}

@@ -1,6 +1,8 @@
 "use client"
+
 import { motion } from "framer-motion"
 import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 import { Sparkles } from "lucide-react"
 
 import { cn } from "@/(client)/libs/utils"
@@ -127,8 +129,21 @@ export function ChatMessage(props: IProps) {
               {message.content}
             </p>
           ) : (
-            <div className="markdown-content text-sm leading-relaxed [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:my-2 [&_ol]:my-2 [&_li]:ml-4 [&_pre]:rounded-lg [&_pre]:bg-muted [&_pre]:p-3 [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_code]:py-0.5 [&_pre_code]:bg-transparent [&_pre_code]:p-0">
-              <ReactMarkdown>{message.content}</ReactMarkdown>
+            <div
+              className={cn(
+                "markdown-content text-sm leading-relaxed",
+                "[&_p]:mb-2 [&_p:last-child]:mb-0",
+                "[&_ul]:my-2 [&_ol]:my-2 [&_li]:ml-4",
+                "[&_pre]:rounded-lg [&_pre]:bg-muted/50 [&_pre]:p-3",
+                "[&_code]:rounded [&_code]:bg-muted/50 [&_code]:px-1 [&_code]:py-0.5",
+                "[&_pre_code]:bg-transparent [&_pre_code]:p-0",
+                "[&_a]:text-primary-foreground [&_a]:underline [&_a]:underline-offset-2 [&_a]:decoration-primary-foreground/50 hover:[&_a]:decoration-primary-foreground",
+                "[&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-white/20 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_td]:border [&_td]:border-white/20 [&_td]:px-3 [&_td]:py-2"
+              )}
+            >
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {message.content}
+              </ReactMarkdown>
             </div>
           )}
         </div>

@@ -2,15 +2,16 @@ import { useQuery } from "@tanstack/react-query";
 
 import { api } from "../api-client";
 import {
-  QUERY_STALE_TIME_MS,
+  FETCH_KNOWLEDGE_BASE_KEYS,
   KNOWLEDGE_BASE_POLL_INTERVAL_MS,
-} from "@/(client)/libs/constants";
+  QUERY_STALE_TIME_MS,
+} from "@/(client)/libs/constants"
 import type {
   KnowledgeBaseListItem,
   KnowledgeBaseImageItem,
-} from "@repo/database/types";
+} from "@repo/database/types"
 
-export const FETCH_KNOWLEDGE_BASE_KEYS = ["FETCH_KNOWLEDGE_BASE"] as const;
+export { FETCH_KNOWLEDGE_BASE_KEYS }
 
 type KnowledgeBaseApiResponse = Omit<
   KnowledgeBaseListItem,

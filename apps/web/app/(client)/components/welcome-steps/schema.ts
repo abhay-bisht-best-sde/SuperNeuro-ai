@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { industries, teamSizes, useCases } from "./constants"
+import { industries, teamSizes, useCases } from "@/(client)/libs/constants"
 
 export const welcomeFormSchema = z.object({
   purpose: z.enum(["personal", "professional"], {

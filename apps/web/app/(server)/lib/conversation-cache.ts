@@ -1,13 +1,11 @@
 import type { Prisma } from "@repo/database"
 
 import { getRedis } from "@/core/redis"
+import { CACHE_PREFIX, CACHE_TTL_SECONDS } from "@/(server)/core/constants"
 
 export type CachedConversation = Prisma.ConversationGetPayload<{
   include: { messages: true }
 }>
-
-const CACHE_PREFIX = "conv:"
-const TTL_SECONDS = 300 // 5 minutes
 
 export async function getCachedConversation(
   id: string
@@ -33,7 +31,7 @@ export async function setCachedConversation(
 
   try {
     const key = `${CACHE_PREFIX}${id}`
-    await redis.setex(key, TTL_SECONDS, JSON.stringify(data))
+    await redis.setex(key, CACHE_TTL_SECONDS, JSON.stringify(data))
   } catch (error) {
     console.error(`Failed to set cached conversation ${id}`, error)
   }

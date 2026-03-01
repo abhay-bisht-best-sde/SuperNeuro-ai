@@ -9,8 +9,10 @@ export {
   ConversationEventType,
   getConversationChannelName,
   type ConversationEvent,
+  type ConversationGraphStageEvent,
   type ConversationMessageEvent,
   type ConversationThinkingEvent,
+  type GraphStage,
 } from "@/libs/ably-types"
 
 const RestPromise = Ably.Rest.Promise

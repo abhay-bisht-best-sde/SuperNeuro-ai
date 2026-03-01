@@ -4,10 +4,14 @@ import { prisma } from "@/core/prisma"
 import { logger } from "@/core/logger"
 import { requireAuth } from "@/(server)/lib/auth"
 import { invalidateConversation } from "@/(server)/lib/conversation-cache"
-import { ConversationEventType, publishConversationEvent } from "@/(server)/lib/ably"
+import {
+  ConversationEventType,
+  publishConversationEvent,
+  type ConversationGraphStageEvent,
+} from "@/(server)/lib/ably"
 import { runChatGraph } from "@/(server)/lib/chat/chat-graph"
 import { INTERNAL_ERROR, SYSTEM_MESSAGE_OBJ } from "@/(server)/core/constants"
-import { MessageRole } from "@repo/database"
+import { MessageRole, type IntegrationType } from "@repo/database"
 
 const log = logger.withTag("api/conversations/[id]/messages")
 
@@ -49,6 +53,18 @@ export async function POST(
       )
     }
 
+    const userConfig = await prisma.userConfig.findUnique({
+      where: { userId },
+      include: {
+        userIntegrationConnections: {
+          where: { connected: true },
+          select: { provider: true },
+        },
+      },
+    })
+    const connectedProviders: IntegrationType[] =
+      userConfig?.userIntegrationConnections.map((c) => c.provider) ?? []
+
     const userMessage = await prisma.message.create({
       data: {
         conversationId,
@@ -74,7 +90,21 @@ export async function POST(
       { role: "user", content },
     ]
 
-    const response = await runChatGraph({ messages })
+    const onGraphEvent = async (event: ConversationGraphStageEvent) => {
+      try {
+        await publishConversationEvent(userId, conversationId, event)
+      } catch (e) {
+        log.warn("Ably graph stage event failed", e)
+      }
+    }
+
+    const response = await runChatGraph({
+      messages,
+      userId,
+      conversationSummary: null,
+      connectedProviders,
+      onEvent: onGraphEvent,
+    })
 
     const assistantMessage = await prisma.message.create({
       data: {

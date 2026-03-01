@@ -14,6 +14,7 @@ export function withChatWorkspaceState<P extends IProps>() {
       hasConversations = false,
       isConversationLoading = false,
       isTyping,
+      graphStage = null,
       sidebarOpen = true,
       onCreateConversation,
       onSendMessage,
@@ -72,6 +73,7 @@ export function withChatWorkspaceState<P extends IProps>() {
             hasConversations={hasConversations}
             isConversationLoading={isConversationLoading}
             isTyping={isTyping}
+            graphStage={graphStage}
             onCreateConversation={onCreateConversation}
             onSendMessage={onSendMessage}
             onSidebarToggle={onSidebarToggle}

@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { fadeUp, stagger, howItWorksSteps } from "./constants"
+import { fadeUp, stagger, howItWorksSteps } from "@/(client)/libs/constants"
 
 export function LandingHowItWorks() {
   return (

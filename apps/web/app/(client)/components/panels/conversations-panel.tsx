@@ -1,5 +1,6 @@
 "use client"
 
+import type { UseMutationResult } from "@tanstack/react-query"
 import { useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { Plus, Pencil, Trash2 } from "lucide-react"
@@ -170,7 +171,7 @@ export function ConversationsPanel(props: IProps) {
   return (
     <QueryBoundary
       queries={[conversationsQuery] as const}
-      mutations={[createConversation, deleteConversation] as const}
+      mutations={[createConversation, deleteConversation] as readonly UseMutationResult<unknown, Error, unknown>[]}
       loadingMessage="Loading conversations…"
       showEmptyWhenNoData={false}
     >

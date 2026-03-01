@@ -11,7 +11,7 @@ import {
 } from "@/(client)/components/ui/form"
 import { useFormContext } from "react-hook-form"
 import { cn } from "@/(client)/libs/utils"
-import { industries } from "./constants"
+import { industries } from "@/(client)/libs/constants"
 import type { WelcomeFormData } from "./schema"
 
 interface IProps {

@@ -1,1 +1,54 @@
+import type { Prisma } from "@repo/database"
+import type { ConversationGraphStageEvent } from "@/libs/ably-types"
+
 export type SidebarSection = "conversations" | "knowledge" | "integrations"
+
+export type ConversationListItem = Prisma.ConversationGetPayload<true>
+
+export type ConversationWithMessages = Prisma.ConversationGetPayload<{
+  include: { messages: true }
+}>
+
+export interface ChatWorkspaceProps {
+  conversation: ConversationWithMessages | null
+  hasConversations?: boolean
+  isConversationLoading?: boolean
+  isTyping: boolean
+  graphStage?: ConversationGraphStageEvent | null
+  sidebarOpen?: boolean
+  onCreateConversation?: () => void
+  onSendMessage: (content: string) => void
+  onSidebarToggle?: () => void
+}
+
+export type ChatWorkspaceView =
+  | "loading"
+  | "no-conversation"
+  | "welcome"
+  | "messages"
+
+export interface SendMessagePayload {
+  conversationId: string
+  content: string
+}
+
+export interface SendMessageResponse {
+  id: string
+  role: "user"
+  content: string
+  createdAt: string
+}
+
+export interface CreateUserConfigPayload {
+  purpose: string
+  companyName: string
+  teamSize: string
+  industry: string
+  useCases: string[]
+}
+
+export interface StoreFileMetadataPayload {
+  fileName: string
+  fileSize: number
+  key: string
+}

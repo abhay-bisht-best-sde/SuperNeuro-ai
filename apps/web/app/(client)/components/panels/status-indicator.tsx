@@ -6,9 +6,9 @@ import { Badge } from "@/(client)/components/ui/badge"
 import { Button } from "@/(client)/components/ui/button"
 import { Progress } from "@/(client)/components/ui/progress"
 
-import { KnowledgeBaseIndexingStatus } from "@repo/database/types";
+import { KnowledgeBaseIndexingStatus } from "@repo/database/types"
 
-const MAX_RETRY_ATTEMPTS = 3;
+import { MAX_RETRY_ATTEMPTS } from "@/(client)/libs/constants"
 
 interface IProps {
   status: KnowledgeBaseIndexingStatus;

@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/core/prisma";
 import { logger } from "@/core/logger";
-import { INTERNAL_ERROR } from "@/(server)/core/constants"
+import { INTERNAL_ERROR, MAX_RETRY_ATTEMPTS } from "@/(server)/core/constants"
 import { KnowledgeBaseIndexingStatus } from "@repo/database";
 import { createPdfIndexMessage } from "@repo/database/types";
 import { pdfIndexingPublisher } from "@/(server)/lib/publishers";
 import { requireAuth } from "@/(server)/lib/auth";
 
-const MAX_RETRY_ATTEMPTS = 3;
 const log = logger.withTag("api/retry-knowledge-base");
 
 export async function POST(

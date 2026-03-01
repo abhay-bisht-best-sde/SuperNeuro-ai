@@ -3,9 +3,12 @@ import { useQuery } from "@tanstack/react-query"
 import type { Integrations } from "@repo/database"
 
 import { api } from "../api-client"
-import { QUERY_STALE_TIME_MS } from "@/(client)/libs/constants"
+import {
+  FETCH_INTEGRATIONS_KEYS,
+  QUERY_STALE_TIME_MS,
+} from "@/(client)/libs/constants"
 
-export const FETCH_INTEGRATIONS_KEYS = ["FETCH_INTEGRATIONS"] as const
+export { FETCH_INTEGRATIONS_KEYS }
 
 export function useIntegrations() {
   return useQuery({

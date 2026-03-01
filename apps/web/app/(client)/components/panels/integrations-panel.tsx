@@ -19,34 +19,11 @@ interface IProps {
 }
 
 
-const DEFAULT_TOOLS = [
-  {
-    id: "tavily",
-    name: "Tavily",
-    description: "Search",
-    url: "https://www.tavily.com/",
-  },
-  {
-    id: "firecrawl",
-    name: "Firecrawl",
-    description: "Extract site data",
-    url: "https://www.firecrawl.dev/",
-  },
-] as const
-
-const FAVICON_BASE = "https://favicon.im"
-
-const INTEGRATION_LOGOS: Record<string, string> = {
-  GMAIL: "https://img.icons8.com/color/96/gmail.png",
-  GOOGLE_CALENDAR: "https://img.icons8.com/color/96/google-calendar.png",
-  GOOGLE_DRIVE: "https://img.icons8.com/color/96/google-drive.png",
-  GOOGLE_SHEETS: "https://img.icons8.com/color/96/google-sheets.png",
-  GOOGLE_DOCS: "https://img.icons8.com/color/96/google-docs.png",
-  NOTION: `${FAVICON_BASE}/notion.so?larger=true`,
-  SLACK: `${FAVICON_BASE}/slack.com?larger=true`,
-  YOUTUBE: `${FAVICON_BASE}/youtube.com?larger=true`,
-  REDDIT: `${FAVICON_BASE}/reddit.com?larger=true`,
-}
+import {
+  DEFAULT_API_TOOLS,
+  FAVICON_BASE,
+  INTEGRATION_LOGOS,
+} from "@/(client)/libs/constants"
 
 function formatIntegrationName(name: string): string {
   return name
@@ -107,7 +84,7 @@ export function IntegrationsPanel(props: IProps) {
             Always enabled. Cannot be disabled.
           </p>
           <div className="flex flex-col gap-2">
-            {DEFAULT_TOOLS.map((tool) => (
+            {DEFAULT_API_TOOLS.map((tool) => (
               <motion.div
                 key={tool.id}
                 initial={false}

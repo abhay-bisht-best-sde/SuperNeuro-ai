@@ -4,6 +4,7 @@ import { useRef, useEffect } from "react"
 import { AnimatePresence } from "framer-motion"
 
 import { ScrollArea } from "@/(client)/components/ui/scroll-area"
+import { getDisplayLabelForStage } from "@/(client)/libs/utils"
 import { ChatMessage } from "./chat-message"
 import { TypingIndicator } from "./typing-indicator"
 import { ChatInputBar } from "./chat-input-bar"
@@ -16,6 +17,7 @@ import type { Message } from "@repo/database"
 interface IProps {
   conversation: ConversationWithMessages
   isTyping: boolean
+  graphStage?: { label: string } | null
   inputValue: string
   onInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
   onKeyDown: (e: React.KeyboardEvent) => void
@@ -26,6 +28,7 @@ export function ChatMessagesView(props: IProps) {
   const {
     conversation,
     isTyping,
+    graphStage = null,
     inputValue,
     onInputChange,
     onKeyDown,
@@ -99,8 +102,9 @@ export function ChatMessagesView(props: IProps) {
                 }
               )}
             </AnimatePresence>
-
-            {isTyping && <TypingIndicator />}
+            {isTyping && (
+              <TypingIndicator label={getDisplayLabelForStage(graphStage?.label)} />
+            )}
           </div>
         </div>
       </ScrollArea>

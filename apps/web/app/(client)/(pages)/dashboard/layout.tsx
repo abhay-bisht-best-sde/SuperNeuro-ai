@@ -32,6 +32,7 @@ export default function DashboardLayout() {
     activeConversationId,
     isConversationLoading,
     isTyping,
+    graphStage,
     activeConversation,
     setActiveConversationId,
     handleNewConversation,
@@ -60,6 +61,7 @@ export default function DashboardLayout() {
               onSendMessage={handleSendMessage}
               isConversationLoading={isConversationLoading}
               isTyping={isTyping}
+              graphStage={graphStage}
             />
           </div>
         </div>

@@ -14,10 +14,18 @@ import { useAblyChannels } from "@/(client)/hooks/use-ably-channels"
 
 import type { Message } from "@repo/database"
 import type { ConversationWithMessages } from "@/(client)/components/query-boundary"
-import { ConversationMessageEvent } from "@/libs/ably-types"
+import {
+  ConversationMessageEvent,
+  type ConversationGraphStageEvent,
+} from "@/libs/ably-types"
 import { FETCH_CONVERSATION_KEYS } from "@/(client)/components/query-boundary"
 
 type CachedMessage = Pick<Message, "id" | "role" | "content" | "createdAt">
+
+type ConversationActivity = {
+  isTyping: boolean
+  graphStage: ConversationGraphStageEvent | null
+}
 
 export function useConversations() {
   const { userId } = useAuth()
@@ -28,9 +36,9 @@ export function useConversations() {
   const [pendingByConv, setPendingByConv] = useState<Map<string, CachedMessage[]>>(
     () => new Map()
   )
-  const [typingByConv, setTypingByConv] = useState<Map<string, boolean>>(
-    () => new Map()
-  )
+  const [activityByConv, setActivityByConv] = useState<
+    Map<string, ConversationActivity>
+  >(() => new Map())
   const activeIdRef = useRef<string | null>(null)
   activeIdRef.current = activeConversationId
 
@@ -67,21 +75,36 @@ export function useConversations() {
   const subscribeIds = useMemo(() => {
     const ids = new Set<string>()
     if (activeConversationId) ids.add(activeConversationId)
-    typingByConv.forEach((_, id) => ids.add(id))
+    activityByConv.forEach((_, id) => ids.add(id))
     return Array.from(ids)
-  }, [activeConversationId, typingByConv])
+  }, [activeConversationId, activityByConv])
 
   const onThinking = useCallback((convId: string) => {
-    setTypingByConv((prev) => {
+    setActivityByConv((prev) => {
       const next = new Map(prev)
-      next.set(convId, true)
+      next.set(convId, { isTyping: true, graphStage: null })
       return next
     })
   }, [])
 
+  const onGraphStage = useCallback(
+    (convId: string, event: ConversationGraphStageEvent) => {
+      setActivityByConv((prev) => {
+        const next = new Map(prev)
+        const current = next.get(convId)
+        next.set(convId, {
+          isTyping: current?.isTyping ?? true,
+          graphStage: event,
+        })
+        return next
+      })
+    },
+    []
+  )
+
   const onMessage = useCallback(
     (convId: string, msg: ConversationMessageEvent["message"]) => {
-      setTypingByConv((prev) => {
+      setActivityByConv((prev) => {
         const next = new Map(prev)
         next.delete(convId)
         return next
@@ -112,6 +135,7 @@ export function useConversations() {
     userId: userId ?? null,
     conversationIds: subscribeIds,
     onThinking,
+    onGraphStage,
     onMessage,
   })
 
@@ -128,8 +152,11 @@ export function useConversations() {
     } as ConversationWithMessages
   }, [activeConversationId, data, messages, userId])
 
-  const isTyping =
-    (activeConversationId && typingByConv.get(activeConversationId)) ?? false
+  const activeActivity = activeConversationId
+    ? activityByConv.get(activeConversationId) ?? null
+    : null
+  const isTyping = activeActivity?.isTyping ?? false
+  const graphStage = activeActivity?.graphStage ?? null
 
   const handleNewConversation = useCallback(() => {
     createConversation.mutate(undefined, {
@@ -148,7 +175,7 @@ export function useConversations() {
       next.delete(id)
       return next
     })
-    setTypingByConv((prev) => {
+    setActivityByConv((prev) => {
       const next = new Map(prev)
       next.delete(id)
       return next
@@ -166,9 +193,12 @@ export function useConversations() {
         createdAt: new Date(),
       }
 
-      setTypingByConv((prev) => {
+      setActivityByConv((prev) => {
         const next = new Map(prev)
-        next.set(activeConversationId, true)
+        next.set(activeConversationId, {
+          isTyping: true,
+          graphStage: null,
+        })
         return next
       })
       setPendingByConv((prev) => {
@@ -188,7 +218,8 @@ export function useConversations() {
     activeConversation,
     isConversationLoading:
       conversationQuery.isLoading || conversationQuery.isFetching,
-    isTyping : Boolean(isTyping),
+    isTyping: Boolean(isTyping),
+    graphStage,
     handleNewConversation,
     handleConversationCreated,
     handleConversationDeleted,

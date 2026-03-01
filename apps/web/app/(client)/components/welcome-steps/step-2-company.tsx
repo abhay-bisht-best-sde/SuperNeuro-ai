@@ -13,7 +13,7 @@ import {
 } from "@/(client)/components/ui/form"
 import { useFormContext } from "react-hook-form"
 import { cn } from "@/(client)/libs/utils"
-import { teamSizes } from "./constants"
+import { teamSizes } from "@/(client)/libs/constants"
 import type { WelcomeFormData } from "./schema"
 
 interface IProps {

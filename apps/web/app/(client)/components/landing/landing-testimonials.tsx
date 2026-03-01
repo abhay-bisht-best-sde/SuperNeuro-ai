@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Star } from "lucide-react"
-import { fadeUp, stagger, testimonials } from "./constants"
+import { fadeUp, stagger, testimonials } from "@/(client)/libs/constants"
 
 export function LandingTestimonials() {
   return (

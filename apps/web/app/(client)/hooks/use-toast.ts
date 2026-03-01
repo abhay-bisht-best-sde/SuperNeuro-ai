@@ -5,8 +5,7 @@ import * as React from 'react'
 
 import type { ToastActionElement, ToastProps } from '@/(client)/components/ui/toast'
 
-const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 1000000
+import { TOAST_LIMIT, TOAST_REMOVE_DELAY } from "@/(client)/libs/constants"
 
 type ToasterToast = ToastProps & {
   id: string

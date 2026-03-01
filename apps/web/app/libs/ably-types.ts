@@ -1,6 +1,7 @@
 export enum ConversationEventType {
   THINKING = "thinking",
   MESSAGE = "message",
+  GRAPH_STAGE = "graph_stage",
 }
 
 export interface ConversationThinkingEvent {
@@ -17,9 +18,36 @@ export interface ConversationMessageEvent {
   }
 }
 
+export type GraphStage =
+  | "planning"
+  | "planned"
+  | "routing"
+  | "direct_llm"
+  | "tool_executing"
+  | "tool_step"
+  | "synthesizing"
+  | "tavily"
+  | "firecrawl"
+  | "composio"
+
+export interface ConversationGraphStageEvent {
+  type: ConversationEventType.GRAPH_STAGE
+  stage: GraphStage
+  label: string
+  details?: {
+    intent?: string
+    requiresTools?: boolean
+    tool?: string
+    stepId?: string
+    stepIndex?: number
+    totalSteps?: number
+  }
+}
+
 export type ConversationEvent =
   | ConversationThinkingEvent
   | ConversationMessageEvent
+  | ConversationGraphStageEvent
 
 export function getConversationChannelName(
   userId: string,

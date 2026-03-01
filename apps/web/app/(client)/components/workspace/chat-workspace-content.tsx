@@ -5,9 +5,12 @@ import { ChatWorkspaceLoading } from "./chat-workspace-loading"
 import { ChatWorkspaceWelcome } from "./chat-workspace-welcome"
 import { ChatMessagesView } from "./chat-messages-view"
 
-import type { IProps as ChatWorkspaceIProps, ChatWorkspaceView } from "./chat-workspace-types"
+import type {
+  ChatWorkspaceProps,
+  ChatWorkspaceView,
+} from "./chat-workspace-types"
 
-function getViewType(props: ChatWorkspaceIProps): ChatWorkspaceView {
+function getViewType(props: ChatWorkspaceProps): ChatWorkspaceView {
   const { isConversationLoading, conversation } = props
   if (isConversationLoading) return "loading"
   if (!conversation) return "no-conversation"
@@ -15,7 +18,7 @@ function getViewType(props: ChatWorkspaceIProps): ChatWorkspaceView {
   return "messages"
 }
 
-interface IProps extends ChatWorkspaceIProps {
+interface IProps extends ChatWorkspaceProps {
   inputValue: string
   inputRef: React.RefObject<HTMLTextAreaElement | null>
   onInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
@@ -29,6 +32,7 @@ export function ChatWorkspaceContent(props: IProps) {
     conversation,
     hasConversations = false,
     isTyping,
+    graphStage = null,
     inputValue,
     inputRef,
     onInputChange,
@@ -68,6 +72,7 @@ export function ChatWorkspaceContent(props: IProps) {
           key={conversation.id}
           conversation={conversation}
           isTyping={isTyping}
+          graphStage={graphStage}
           inputValue={inputValue}
           onInputChange={onInputChange}
           onKeyDown={onKeyDown}

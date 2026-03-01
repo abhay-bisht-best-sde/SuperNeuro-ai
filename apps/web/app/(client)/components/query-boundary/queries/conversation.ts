@@ -1,16 +1,14 @@
 import { useQuery } from "@tanstack/react-query"
 
-import type { Prisma } from "@repo/database"
-
 import { api } from "../api-client"
-import { QUERY_STALE_TIME_MS } from "@/(client)/libs/constants"
+import type { ConversationWithMessages } from "@/(client)/libs/types"
+import {
+  FETCH_CONVERSATION_KEYS,
+  QUERY_STALE_TIME_MS,
+} from "@/(client)/libs/constants"
 
-export const FETCH_CONVERSATION_KEYS = (id: string | null) =>
-  ["FETCH_CONVERSATION", id] as const
-
-export type ConversationWithMessages = Prisma.ConversationGetPayload<{
-  include: { messages: true }
-}>
+export { FETCH_CONVERSATION_KEYS }
+export type { ConversationWithMessages } from "@/(client)/libs/types"
 
 export function useConversation(id: string | null) {
   return useQuery({

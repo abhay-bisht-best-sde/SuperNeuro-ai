@@ -1,18 +1,12 @@
 import { useMutation } from "@tanstack/react-query"
 
+import type {
+  SendMessagePayload,
+  SendMessageResponse,
+} from "@/(client)/libs/types"
 import { api } from "../api-client"
 
-export interface SendMessagePayload {
-  conversationId: string
-  content: string
-}
-
-export interface SendMessageResponse {
-  id: string
-  role: "user"
-  content: string
-  createdAt: string
-}
+export type { SendMessagePayload, SendMessageResponse } from "@/(client)/libs/types"
 
 export function useSendMessage() {
   return useMutation({

@@ -13,7 +13,7 @@ type QueryData<T extends readonly UseQueryResult<unknown, Error>[]> = {
 
 export interface IProps<
   TQueries extends readonly UseQueryResult<unknown, Error>[],
-  TMutations extends readonly UseMutationResult<unknown, Error, unknown>[] = []
+  TMutations extends readonly UseMutationResult<unknown, Error, unknown>[]
 > {
   queries: TQueries
   mutations?: TMutations
@@ -33,7 +33,7 @@ function isEmpty(data: unknown): boolean {
 
 export function QueryBoundary<
   TQueries extends readonly UseQueryResult<unknown, Error>[],
-  TMutations extends readonly UseMutationResult<unknown, Error, unknown>[] = []
+  TMutations extends readonly UseMutationResult<unknown, Error, unknown>[]
 >(props: IProps<TQueries, TMutations>) {
   const {
     queries,
