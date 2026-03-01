@@ -188,7 +188,7 @@ export function useConversations() {
     activeConversation,
     isConversationLoading:
       conversationQuery.isLoading || conversationQuery.isFetching,
-    isTyping,
+    isTyping : Boolean(isTyping),
     handleNewConversation,
     handleConversationCreated,
     handleConversationDeleted,

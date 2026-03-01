@@ -12,6 +12,8 @@ export type { QueryBoundaryProps } from "./query-boundary"
 export {
   useFetchUserConfig,
   FETCH_USER_CONFIGS_KEYS,
+  useIntegrations,
+  FETCH_INTEGRATIONS_KEYS,
   useKnowledgeBase,
   FETCH_KNOWLEDGE_BASE_KEYS,
   useConversations,
@@ -25,6 +27,7 @@ export type {
 } from "./queries"
 export {
   useInsertUserConfig,
+  useUpdateUserIntegrations,
   useStoreFileMetadata,
   useRetryKnowledgeBase,
   useCreateConversation,

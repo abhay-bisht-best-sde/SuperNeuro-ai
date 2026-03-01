@@ -1,4 +1,5 @@
 export { useInsertUserConfig, type CreateUserConfigPayload } from "./user-config"
+export { useUpdateUserIntegrations } from "./update-user-integrations"
 export {
   useStoreFileMetadata,
   type StoreFileMetadataPayload,

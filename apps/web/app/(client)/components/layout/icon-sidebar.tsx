@@ -3,6 +3,7 @@
 import {
   MessageSquare,
   Database,
+  Plug,
   PanelLeftClose,
   PanelLeft,
 } from "lucide-react"
@@ -20,6 +21,7 @@ import type { SidebarSection } from "@/(client)/libs/types"
 const navItems: { icon: React.ElementType; label: string; section: SidebarSection }[] = [
   { icon: MessageSquare, label: "Conversations", section: "conversations" },
   { icon: Database, label: "Knowledge Base", section: "knowledge" },
+  { icon: Plug, label: "Integrations", section: "integrations" },
 ]
 
 interface IconSidebarProps {

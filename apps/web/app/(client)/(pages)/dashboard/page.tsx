@@ -9,6 +9,7 @@ import { MainDashboardContent } from "./components/main-dashboard-content"
 import { DashboardGuard } from "./dashboard-guard"
 
 import type { SidebarSection } from "@/(client)/libs/types"
+import { BootupWrapper } from "@/(client)/components/bootup"
 
 const MemoizedIconSidebar = memo(IconSidebar)
 
@@ -33,6 +34,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardGuard>
+      <BootupWrapper> 
       <div className="flex h-screen w-screen overflow-hidden bg-background">
         <MemoizedIconSidebar
           activeSection={activeSection}
@@ -55,6 +57,7 @@ export default function DashboardPage() {
           />
         </div>
       </div>
+      </BootupWrapper>
     </DashboardGuard>
   )
 }

@@ -4,13 +4,18 @@ import { AnimatePresence, motion } from "framer-motion"
 
 import { ConversationsPanel } from "@/(client)/components/panels/conversations-panel"
 import { KnowledgePanel } from "@/(client)/components/panels/knowledge-panel"
-import { useKnowledgeBase, QueryBoundary } from "@/(client)/components/query-boundary"
+import { IntegrationsPanel } from "@/(client)/components/panels/integrations-panel"
+import {
+  useKnowledgeBase,
+  QueryBoundary,
+} from "@/(client)/components/query-boundary"
 
 import type { SidebarSection } from "@/(client)/libs/types"
 
 const sectionTitles: Record<SidebarSection, string> = {
   conversations: "Conversations",
   knowledge: "Knowledge Base",
+  integrations: "Integrations",
 }
 
 interface SecondarySidebarProps {
@@ -85,6 +90,10 @@ export function SecondarySidebar(props: SecondarySidebarProps) {
                 onRetry={onRetryKnowledgeBase}
               />
             </QueryBoundary>
+          )}
+          {activeSection === "integrations" && (
+            <IntegrationsPanel
+            />
           )}
         </motion.div>
       </AnimatePresence>

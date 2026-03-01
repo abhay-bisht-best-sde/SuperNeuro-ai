@@ -8,15 +8,39 @@ datasource db {
   url      = env("DATABASE_URL")
 } 
 
+enum IntegrationType {
+  GMAIL
+  GOOGLE_CALENDAR
+  GOOGLE_DRIVE
+  GOOGLE_SHEETS
+  NOTION
+  SLACK
+  GOOGLE_DOCS
+  YOUTUBE
+  REDDIT
+}
+
+model Integrations {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  name           IntegrationType @unique
+  userConfigIds  String[]     @default([]) @db.ObjectId
+  userConfigs    UserConfig[] @relation(fields: [userConfigIds], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model UserConfig {
-  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId              String   @unique
+  id                  String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId              String        @unique
   purpose             String
   companyName         String
   teamSize            String
   industry            String
   useCases            String[]
-  onboardingCompleted Boolean  @default(false)
+  integrationIds      String[]      @default([]) @db.ObjectId
+  integrations        Integrations[] @relation(fields: [integrationIds], references: [id])
+  onboardingCompleted Boolean       @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

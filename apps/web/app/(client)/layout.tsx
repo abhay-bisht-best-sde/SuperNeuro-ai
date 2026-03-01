@@ -25,8 +25,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <html lang="en" className="dark">
         <body className={cn(inter.variable, jetbrainsMono.variable, "font-sans antialiased")}>
           <QueryProvider>
-            {children}
-            <Analytics />
+              {children}
+              <Analytics />
           </QueryProvider>
         </body>
       </html>

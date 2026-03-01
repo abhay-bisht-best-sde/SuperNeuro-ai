@@ -1,1 +1,1 @@
-export type SidebarSection = "conversations" | "knowledge"
+export type SidebarSection = "conversations" | "knowledge" | "integrations"
