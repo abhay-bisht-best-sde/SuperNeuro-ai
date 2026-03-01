@@ -11,7 +11,7 @@ type QueryData<T extends readonly UseQueryResult<unknown, Error>[]> = {
   [K in keyof T]: T[K] extends UseQueryResult<infer D, Error> ? D : never
 }
 
-export interface QueryBoundaryProps<
+export interface IProps<
   TQueries extends readonly UseQueryResult<unknown, Error>[],
   TMutations extends readonly UseMutationResult<unknown, Error, unknown>[] = []
 > {
@@ -34,7 +34,7 @@ function isEmpty(data: unknown): boolean {
 export function QueryBoundary<
   TQueries extends readonly UseQueryResult<unknown, Error>[],
   TMutations extends readonly UseMutationResult<unknown, Error, unknown>[] = []
->(props: QueryBoundaryProps<TQueries, TMutations>) {
+>(props: IProps<TQueries, TMutations>) {
   const {
     queries,
     mutations = [] as unknown as TMutations,

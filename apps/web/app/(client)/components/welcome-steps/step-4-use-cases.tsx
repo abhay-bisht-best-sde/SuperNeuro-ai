@@ -14,14 +14,15 @@ import { cn } from "@/(client)/libs/utils"
 import { useCases as useCaseOptions } from "./constants"
 import type { WelcomeFormData } from "./schema"
 
-interface Step4UseCasesProps {
+interface IProps {
   onNext: () => void
   onBack?: () => void
   isSubmitting?: boolean
   mutationError?: Error | null
 }
 
-export function Step4UseCases({ onNext, onBack, isSubmitting = false, mutationError }: Step4UseCasesProps) {
+export function Step4UseCases(props: IProps) {
+  const { onNext, onBack, isSubmitting = false, mutationError } = props
   const { watch, setValue, control } = useFormContext<WelcomeFormData>()
   const selectedCases = watch("useCases") ?? []
 

@@ -18,7 +18,7 @@ const SUGGESTIONS = [
   "Summarize unread emails",
 ]
 
-interface ChatWorkspaceWelcomeProps {
+interface IProps {
   inputValue: string
   inputRef?: React.RefObject<HTMLTextAreaElement | null>
   onInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
@@ -27,7 +27,7 @@ interface ChatWorkspaceWelcomeProps {
   onSuggestionClick: (suggestion: string) => void
 }
 
-export function ChatWorkspaceWelcome(props: ChatWorkspaceWelcomeProps) {
+export function ChatWorkspaceWelcome(props: IProps) {
   const {
     inputValue,
     inputRef,

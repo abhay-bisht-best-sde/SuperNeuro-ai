@@ -2,20 +2,19 @@
 
 import { useFetchUserConfig } from "@/(client)/components/query-boundary/queries"
 import { QueryBoundary } from "@/(client)/components/query-boundary"
-import type { UserConfig } from "@repo/database"
+import type { UserConfigResponse } from "@repo/database/types"
 
-interface WelcomeGuardProps {
+interface IProps {
   children: React.ReactNode
 }
 
-function redirectWhenOnboardingComplete([userConfig]: readonly [
-  UserConfig | null | undefined
-]): string | null {
-  if (userConfig?.onboardingCompleted) return "/dashboard"
+function redirectWhenOnboardingComplete([data]: readonly [UserConfigResponse | undefined]): string | null {
+  if (data?.userConfig?.onboardingCompleted) return "/dashboard/integrations"
   return null
 }
 
-export function WelcomeGuard({ children }: WelcomeGuardProps) {
+export function WelcomeGuard(props: IProps) {
+  const { children } = props
   const userConfig = useFetchUserConfig()
 
   return (

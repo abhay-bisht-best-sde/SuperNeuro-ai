@@ -16,12 +16,13 @@ import { cn } from "@/(client)/libs/utils"
 import { teamSizes } from "./constants"
 import type { WelcomeFormData } from "./schema"
 
-interface Step2CompanyProps {
+interface IProps {
   onNext: () => void
   onBack?: () => void
 }
 
-export function Step2Company({ onNext, onBack }: Step2CompanyProps) {
+export function Step2Company(props: IProps) {
+  const { onNext, onBack } = props
   const { watch, setValue, control } = useFormContext<WelcomeFormData>()
   const teamSize = watch("teamSize")
 

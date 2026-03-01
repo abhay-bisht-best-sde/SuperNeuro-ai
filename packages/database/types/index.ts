@@ -1,3 +1,11 @@
+import type { IntegrationType, UserConfig } from "@repo/database"
+
+/** API response shape for GET /api/user-config - uses Prisma schema types */
+export type UserConfigResponse = {
+  userConfig: UserConfig | null
+  connectedProviders: IntegrationType[]
+}
+
 export {
   type FileUploadSqsMessage,
   FILE_UPLOAD_MESSAGE_TYPE,

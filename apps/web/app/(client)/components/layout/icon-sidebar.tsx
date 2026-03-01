@@ -1,5 +1,7 @@
 "use client"
 
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import {
   MessageSquare,
   Database,
@@ -7,7 +9,7 @@ import {
   PanelLeftClose,
   PanelLeft,
 } from "lucide-react"
-import { Button } from "@/(client)/components/ui/button"
+import { Button, buttonVariants } from "@/(client)/components/ui/button"
 import {
   Tooltip,
   TooltipContent,
@@ -18,19 +20,26 @@ import { APP_NAME } from "@/(client)/libs/constants"
 import { useSidebarExpanded } from "@/(client)/hooks/use-sidebar-expanded"
 import type { SidebarSection } from "@/(client)/libs/types"
 
-const navItems: { icon: React.ElementType; label: string; section: SidebarSection }[] = [
-  { icon: MessageSquare, label: "Conversations", section: "conversations" },
-  { icon: Database, label: "Knowledge Base", section: "knowledge" },
-  { icon: Plug, label: "Integrations", section: "integrations" },
+const navItems: {
+  icon: React.ElementType
+  label: string
+  section: SidebarSection
+  href: string
+}[] = [
+  { icon: MessageSquare, label: "Conversations", section: "conversations", href: "/dashboard" },
+  { icon: Database, label: "Knowledge Base", section: "knowledge", href: "/dashboard/knowledge" },
+  { icon: Plug, label: "Integrations", section: "integrations", href: "/dashboard/integrations" },
 ]
 
-interface IconSidebarProps {
-  activeSection: SidebarSection
-  onSectionChange: (section: SidebarSection) => void
+function pathnameToSection(pathname: string): SidebarSection {
+  if (pathname === "/dashboard/integrations") return "integrations"
+  if (pathname === "/dashboard/knowledge") return "knowledge"
+  return "conversations"
 }
 
-export function IconSidebar(props: IconSidebarProps) {
-  const { activeSection, onSectionChange } = props
+export function IconSidebar() {
+  const pathname = usePathname()
+  const activeSection = pathnameToSection(pathname ?? "/dashboard")
   const [expanded, toggle] = useSidebarExpanded()
 
   return (
@@ -92,12 +101,11 @@ export function IconSidebar(props: IconSidebarProps) {
       >
         {navItems.map((item) => {
           const isActive = activeSection === item.section
-          const button = (
-            <Button
-              variant="ghost"
-              size={expanded ? "sm" : "icon"}
-              onClick={() => onSectionChange(item.section)}
+          const link = (
+            <Link
+              href={item.href}
               className={cn(
+                buttonVariants({ variant: "ghost", size: expanded ? "sm" : "icon" }),
                 "relative isolate h-10 overflow-hidden rounded-xl hover:bg-primary/20",
                 expanded ? "w-full justify-start gap-3 px-3" : "w-10"
               )}
@@ -119,14 +127,14 @@ export function IconSidebar(props: IconSidebarProps) {
                   {item.label}
                 </span>
               )}
-            </Button>
+            </Link>
           )
 
           return expanded ? (
-            <div key={item.section}>{button}</div>
+            <div key={item.section}>{link}</div>
           ) : (
             <Tooltip key={item.section}>
-              <TooltipTrigger asChild>{button}</TooltipTrigger>
+              <TooltipTrigger asChild>{link}</TooltipTrigger>
               <TooltipContent side="right" sideOffset={8}>
                 {item.label}
               </TooltipContent>

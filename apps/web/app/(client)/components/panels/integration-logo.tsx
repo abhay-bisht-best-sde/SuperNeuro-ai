@@ -3,13 +3,13 @@
 import { useState } from "react"
 import Image from "next/image"
 
-interface IntegrationLogoProps {
+interface IProps {
   src: string
   alt: string
   fallback: string
 }
 
-export function IntegrationLogo(props: IntegrationLogoProps) {
+export function IntegrationLogo(props: IProps) {
   const { src, alt, fallback } = props
 
   const [errored, setErrored] = useState(false)

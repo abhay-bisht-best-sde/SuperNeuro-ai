@@ -5,14 +5,12 @@ import { Plus } from "lucide-react"
 
 import { Button } from "@/(client)/components/ui/button"
 
-interface CreateConversationEmptyStateProps {
+interface IProps {
   hasConversations: boolean
   onCreateConversation?: () => void
 }
 
-export function CreateConversationEmptyState(
-  props: CreateConversationEmptyStateProps
-) {
+export function CreateConversationEmptyState(props: IProps) {
   const { hasConversations, onCreateConversation } = props
 
   const heading = hasConversations

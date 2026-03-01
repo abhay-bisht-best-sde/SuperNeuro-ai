@@ -1,4 +1,8 @@
-export { useFetchUserConfig, FETCH_USER_CONFIGS_KEYS } from "./user-config"
+export type { UserConfigResponse } from "@repo/database/types"
+export {
+  useFetchUserConfig,
+  FETCH_USER_CONFIGS_KEYS,
+} from "./user-config"
 export {
   useIntegrations,
   FETCH_INTEGRATIONS_KEYS,

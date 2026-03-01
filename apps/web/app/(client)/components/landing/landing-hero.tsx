@@ -14,13 +14,14 @@ import { useRouter } from "next/navigation"
 const HERO_GRID_MASK =
   "bg-[linear-gradient(to_right,oklch(0.22_0.008_285/0.7)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.22_0.008_285/0.7)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,black_10%,transparent_85%)]"
 
-interface LandingHeroProps {
+interface IProps {
   heroRef: RefObject<HTMLDivElement | null>
   heroY: MotionValue<number>
   heroOpacity: MotionValue<number>
 }
 
-export function LandingHero({ heroRef, heroY, heroOpacity }: LandingHeroProps) {
+export function LandingHero(props: IProps) {
+  const { heroRef, heroY, heroOpacity } = props
   const { isSignedIn } = useAuth()
   const router = useRouter()
 

@@ -8,19 +8,30 @@ const log = logger.withTag("api/user-config");
 
 export async function GET() {
   try {
-    log.info("Get user config request");
     const authResult = await requireAuth();
     if (authResult instanceof NextResponse) return authResult;
+    const userId = authResult;
 
     const userConfig = await prisma.userConfig.findUnique({
-      where: { userId: authResult },
+      where: { userId },
+      include: {
+        userIntegrationConnections: {
+          where: { connected: true },
+          select: { provider: true },
+        },
+      },
     });
-    if (userConfig) {
-      log.success("User config fetched", { userId: authResult });
-    } else {
-      log.debug("User config not found", { userId: authResult });
+
+    const connectedProviders =
+      userConfig?.userIntegrationConnections.map((c) => c.provider) ?? [];
+    const userConfigResponse = userConfig ? { ...userConfig } : null;
+    if (userConfigResponse) {
+      delete (userConfigResponse as any).userIntegrationConnections;
     }
-    return NextResponse.json(userConfig);
+    return NextResponse.json({
+      userConfig: userConfigResponse,
+      connectedProviders,
+    });
   } catch (err) {
     log.error("User config fetch failed", err);
     return NextResponse.json({ error: INTERNAL_ERROR }, { status: 500 });
@@ -77,56 +88,3 @@ export async function POST(req: Request) {
   }
 }
 
-export async function PATCH(req: Request) {
-  try {
-    log.info("Update user config request");
-    const authResult = await requireAuth();
-    if (authResult instanceof NextResponse) return authResult;
-    const userId = authResult;
-
-    const body = await req.json();
-    const { integrationIds } = body as { integrationIds?: string[] };
-
-    if (!Array.isArray(integrationIds)) {
-      return NextResponse.json(
-        { error: "integrationIds must be an array" },
-        { status: 400 }
-      );
-    }
-
-    const existing = await prisma.userConfig.findUnique({
-      where: { userId },
-    });
-
-    if (existing) {
-      await prisma.userConfig.update({
-        where: { userId },
-        data: {
-          integrations: {
-            set: integrationIds.map((id) => ({ id })),
-          },
-        },
-      });
-    } else {
-      await prisma.userConfig.create({
-        data: {
-          userId,
-          purpose: "",
-          companyName: "",
-          teamSize: "",
-          industry: "",
-          useCases: [],
-          integrations: {
-            connect: integrationIds.map((id) => ({ id })),
-          },
-        },
-      });
-    }
-
-    log.success("User config integrations updated", { userId });
-    return NextResponse.json({ message: "Integrations saved successfully" });
-  } catch (err) {
-    log.error("User config update failed", err);
-    return NextResponse.json({ error: INTERNAL_ERROR }, { status: 500 });
-  }
-}

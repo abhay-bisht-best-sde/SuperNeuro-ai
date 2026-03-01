@@ -3,12 +3,8 @@
 import { AnimatePresence, motion } from "framer-motion"
 
 import { ConversationsPanel } from "@/(client)/components/panels/conversations-panel"
-import { KnowledgePanel } from "@/(client)/components/panels/knowledge-panel"
-import { IntegrationsPanel } from "@/(client)/components/panels/integrations-panel"
-import {
-  useKnowledgeBase,
-  QueryBoundary,
-} from "@/(client)/components/query-boundary"
+import { KnowledgeSection } from "@/(client)/components/layout/knowledge-section"
+import { IntegrationsSection } from "@/(client)/components/layout/integrations-section"
 
 import type { SidebarSection } from "@/(client)/libs/types"
 
@@ -18,7 +14,7 @@ const sectionTitles: Record<SidebarSection, string> = {
   integrations: "Integrations",
 }
 
-interface SecondarySidebarProps {
+interface IProps {
   activeSection: SidebarSection
   activeConversationId: string | null
   isOpen: boolean
@@ -29,7 +25,7 @@ interface SecondarySidebarProps {
   onRetryKnowledgeBase: (id: string) => void
 }
 
-export function SecondarySidebar(props: SecondarySidebarProps) {
+export function SecondarySidebar(props: IProps) {
   const {
     activeSection,
     activeConversationId,
@@ -41,8 +37,6 @@ export function SecondarySidebar(props: SecondarySidebarProps) {
     onRetryKnowledgeBase,
   } = props
 
-  const knowledgeBaseQuery = useKnowledgeBase()
-
   if (!isOpen) return null
 
   return (
@@ -51,7 +45,7 @@ export function SecondarySidebar(props: SecondarySidebarProps) {
         <AnimatePresence mode="wait">
           <motion.h2
             key={activeSection}
-            initial={{ opacity: 0, x: -8 }}
+            initial={false}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 8 }}
             transition={{ duration: 0.15 }}
@@ -65,7 +59,7 @@ export function SecondarySidebar(props: SecondarySidebarProps) {
       <AnimatePresence mode="wait">
         <motion.div
           key={activeSection}
-          initial={{ opacity: 0, x: -12 }}
+          initial={false}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 12 }}
           transition={{ duration: 0.15 }}
@@ -80,21 +74,12 @@ export function SecondarySidebar(props: SecondarySidebarProps) {
             />
           )}
           {activeSection === "knowledge" && (
-            <QueryBoundary
-              queries={[knowledgeBaseQuery] as const}
-              loadingMessage="Loading knowledge bases…"
-            >
-              <KnowledgePanel
-                knowledgeBases={knowledgeBaseQuery.data ?? []}
-                onAddKnowledgeBase={onAddKnowledgeBase}
-                onRetry={onRetryKnowledgeBase}
-              />
-            </QueryBoundary>
-          )}
-          {activeSection === "integrations" && (
-            <IntegrationsPanel
+            <KnowledgeSection
+              onAddKnowledgeBase={onAddKnowledgeBase}
+              onRetry={onRetryKnowledgeBase}
             />
           )}
+          {activeSection === "integrations" && <IntegrationsSection />}
         </motion.div>
       </AnimatePresence>
     </div>

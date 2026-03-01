@@ -71,14 +71,14 @@ function formatMessageTime(date: Date | string): string {
   return `${time} • ${day} • ${dateStr}`
 }
 
-interface ChatMessageProps {
+interface IProps {
   message: Pick<Message, "id" | "role" | "content" | "createdAt">
   index: number
   isLatest?: boolean
   shouldAnimate?: boolean
 }
 
-export function ChatMessage(props: ChatMessageProps) {
+export function ChatMessage(props: IProps) {
   const { message, index, isLatest = false, shouldAnimate = true } = props
 
   const isUser =

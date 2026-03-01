@@ -5,9 +5,9 @@ import { useState, useRef, useCallback } from "react"
 import { ChatWorkspaceHeader } from "./chat-workspace-header"
 import { ChatWorkspaceContent } from "./chat-workspace-content"
 
-import type { ChatWorkspaceProps } from "./chat-workspace-types"
+import type { IProps } from "./chat-workspace-types"
 
-export function withChatWorkspaceState<P extends ChatWorkspaceProps>() {
+export function withChatWorkspaceState<P extends IProps>() {
   return function ChatWorkspaceWithState(props: P) {
     const {
       conversation,

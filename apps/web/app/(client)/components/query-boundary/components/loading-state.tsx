@@ -4,12 +4,12 @@ import { Loader2Icon } from "lucide-react"
 
 import { cn } from "@/(client)/libs/utils"
 
-interface LoadingStateProps {
+interface IProps {
   className?: string
   message?: string
 }
 
-export function LoadingState(props: LoadingStateProps) {
+export function LoadingState(props: IProps) {
   const { className, message = "Loading…" } = props
 
   return (

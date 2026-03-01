@@ -10,7 +10,7 @@ import { KnowledgeBaseIndexingStatus } from "@repo/database/types";
 
 const MAX_RETRY_ATTEMPTS = 3;
 
-interface StatusIndicatorProps {
+interface IProps {
   status: KnowledgeBaseIndexingStatus;
   progress?: number
   errorMessage?: string | null
@@ -19,7 +19,7 @@ interface StatusIndicatorProps {
   typeLabel?: string
 }
 
-export function StatusIndicator(props: StatusIndicatorProps) {
+export function StatusIndicator(props: IProps) {
   const {
     status,
     progress,

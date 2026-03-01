@@ -3,11 +3,11 @@
 import { Badge } from "@/(client)/components/ui/badge"
 import { ImageProcessingStatus } from "@repo/database/types"
 
-interface ImageStatusBadgeProps {
+interface IProps {
   status: ImageProcessingStatus
 }
 
-export function ImageStatusBadge(props: ImageStatusBadgeProps) {
+export function ImageStatusBadge(props: IProps) {
   const { status } = props
 
   switch (status) {

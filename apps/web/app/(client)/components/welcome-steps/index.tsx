@@ -75,7 +75,7 @@ export function WelcomePage() {
       },
       {
         onSuccess: () => {
-          router.push("/dashboard")
+          router.push("/dashboard/integrations")
         },
       }
     )

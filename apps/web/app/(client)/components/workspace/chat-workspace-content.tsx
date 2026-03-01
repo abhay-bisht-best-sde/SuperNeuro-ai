@@ -5,9 +5,9 @@ import { ChatWorkspaceLoading } from "./chat-workspace-loading"
 import { ChatWorkspaceWelcome } from "./chat-workspace-welcome"
 import { ChatMessagesView } from "./chat-messages-view"
 
-import type { ChatWorkspaceProps, ChatWorkspaceView } from "./chat-workspace-types"
+import type { IProps as ChatWorkspaceIProps, ChatWorkspaceView } from "./chat-workspace-types"
 
-function getViewType(props: ChatWorkspaceProps): ChatWorkspaceView {
+function getViewType(props: ChatWorkspaceIProps): ChatWorkspaceView {
   const { isConversationLoading, conversation } = props
   if (isConversationLoading) return "loading"
   if (!conversation) return "no-conversation"
@@ -15,7 +15,7 @@ function getViewType(props: ChatWorkspaceProps): ChatWorkspaceView {
   return "messages"
 }
 
-export interface ChatWorkspaceContentProps extends ChatWorkspaceProps {
+interface IProps extends ChatWorkspaceIProps {
   inputValue: string
   inputRef: React.RefObject<HTMLTextAreaElement | null>
   onInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
@@ -24,7 +24,7 @@ export interface ChatWorkspaceContentProps extends ChatWorkspaceProps {
   onSuggestionClick: (suggestion: string) => void
 }
 
-export function ChatWorkspaceContent(props: ChatWorkspaceContentProps) {
+export function ChatWorkspaceContent(props: IProps) {
   const {
     conversation,
     hasConversations = false,

@@ -41,6 +41,6 @@ export function useKnowledgeBase() {
       );
     },
     staleTime: QUERY_STALE_TIME_MS,
-    refetchInterval: KNOWLEDGE_BASE_POLL_INTERVAL_MS,
+    // refetchInterval: KNOWLEDGE_BASE_POLL_INTERVAL_MS,
   });
 }

@@ -1,11 +1,11 @@
 import { cn } from "@/(client)/libs/utils"
 
-interface StepIndicatorProps {
+interface IProps {
   currentStep: number
   totalSteps: number
 }
 
-export function StepIndicator(props: StepIndicatorProps) {
+export function StepIndicator(props: IProps) {
   const { currentStep, totalSteps } = props
   return (
     <div className="flex items-center gap-2">

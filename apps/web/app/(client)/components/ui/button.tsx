@@ -37,16 +37,16 @@ const buttonVariants = cva(
   },
 )
 
-export interface ButtonProps
+interface IProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
   loading?: boolean
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
+const Button = React.forwardRef<HTMLButtonElement, IProps>(
+  (props, ref) => {
+    const {
       className,
       variant,
       size,
@@ -54,10 +54,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       loading = false,
       disabled,
       children,
-      ...props
-    },
-    ref
-  ) => {
+      ...rest
+    } = props
+
     const Comp = asChild ? Slot : 'button'
 
     return (
@@ -66,7 +65,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={loading || disabled}
         className={cn(buttonVariants({ variant, size, className }), 'cursor-pointer')}
         ref={ref}
-        {...props}
+        {...rest}
       >
         {loading && (
           <Loader2

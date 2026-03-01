@@ -18,20 +18,20 @@ import { UpdateConversationModal } from "@/(client)/components/modal/update-conv
 
 import type { ConversationListItem } from "@/(client)/components/query-boundary/queries/conversations"
 
-interface ConversationsPanelProps {
+interface IProps {
   activeConversationId: string | null
   onSelectConversation: (id: string) => void
   onConversationCreated: (id: string) => void
   onConversationDeleted: (id: string) => void
 }
 
-interface ConversationsPanelInnerProps extends ConversationsPanelProps {
+interface IInnerProps extends IProps {
   conversations: ConversationListItem[]
   createConversation: ReturnType<typeof useCreateConversation>
   deleteConversation: ReturnType<typeof useDeleteConversation>
 }
 
-function ConversationsPanelInner(props: ConversationsPanelInnerProps) {
+function ConversationsPanelInner(props: IInnerProps) {
   const {
     activeConversationId,
     onSelectConversation,
@@ -95,10 +95,10 @@ function ConversationsPanelInner(props: ConversationsPanelInnerProps) {
                 key={conversation.id}
                 role="button"
                 tabIndex={0}
-                initial={{ opacity: 0, y: 8 }}
+                initial={false}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                transition={{ delay: index * 0.03, duration: 0.2 }}
+                transition={{ duration: 0.2 }}
                 onClick={() => onSelectConversation(conversation.id)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -162,7 +162,7 @@ function ConversationsPanelInner(props: ConversationsPanelInnerProps) {
   )
 }
 
-export function ConversationsPanel(props: ConversationsPanelProps) {
+export function ConversationsPanel(props: IProps) {
   const conversationsQuery = useConversations()
   const createConversation = useCreateConversation()
   const deleteConversation = useDeleteConversation()

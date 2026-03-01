@@ -13,7 +13,7 @@ import type {
 } from "@/(client)/components/query-boundary"
 import type { Message } from "@repo/database"
 
-interface ChatMessagesViewProps {
+interface IProps {
   conversation: ConversationWithMessages
   isTyping: boolean
   inputValue: string
@@ -22,7 +22,7 @@ interface ChatMessagesViewProps {
   onSubmit: () => void
 }
 
-export function ChatMessagesView(props: ChatMessagesViewProps) {
+export function ChatMessagesView(props: IProps) {
   const {
     conversation,
     isTyping,

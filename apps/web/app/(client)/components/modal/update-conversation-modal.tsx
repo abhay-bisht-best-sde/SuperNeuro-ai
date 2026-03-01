@@ -32,14 +32,14 @@ const updateConversationSchema = z.object({
 
 type UpdateConversationFormData = z.infer<typeof updateConversationSchema>
 
-interface UpdateConversationModalProps {
+interface IProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   conversationId: string | null
   currentTitle: string
 }
 
-export function UpdateConversationModal(props: UpdateConversationModalProps) {
+export function UpdateConversationModal(props: IProps) {
   const { open, onOpenChange, conversationId, currentTitle } = props
 
   const form = useForm<UpdateConversationFormData>({

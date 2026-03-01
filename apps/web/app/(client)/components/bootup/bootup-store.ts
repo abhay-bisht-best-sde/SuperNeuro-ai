@@ -1,11 +1,11 @@
 import { create } from "zustand"
 
-import type { Integrations, UserConfig } from "@repo/database"
+import type { Integrations, IntegrationType, UserConfig } from "@repo/database"
 import { useShallow } from "zustand/react/shallow"
 
 export interface BootupState {
   integrations: Integrations[]
-  selectedIntegrationIds: string[]
+  connectedProviders: IntegrationType[]
   userConfig: UserConfig | null
   isReady: boolean
 }
@@ -16,7 +16,7 @@ interface BootupStore extends BootupState {
 
 const initialState: BootupState = {
   integrations: [],
-  selectedIntegrationIds: [],
+  connectedProviders: [],
   userConfig: null,
   isReady: false,
 }
@@ -31,7 +31,7 @@ export function useBootupState() {
   return useBootupStore(
     useShallow((s) => ({
       integrations: s.integrations,
-      selectedIntegrationIds: s.selectedIntegrationIds,
+      connectedProviders: s.connectedProviders,
       userConfig: s.userConfig,
       isReady: s.isReady,
     }))

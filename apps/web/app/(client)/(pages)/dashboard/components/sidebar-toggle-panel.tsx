@@ -6,7 +6,7 @@ import { SecondarySidebar } from "@/(client)/components/layout/secondary-sidebar
 
 import type { SidebarSection } from "@/(client)/libs/types"
 
-interface SidebarTogglePanelProps {
+interface IProps {
   activeSection: SidebarSection
   activeConversationId: string | null
   sidebarOpen: boolean
@@ -18,7 +18,7 @@ interface SidebarTogglePanelProps {
   onRetryKnowledgeBase: (id: string) => void
 }
 
-export function SidebarTogglePanel(props: SidebarTogglePanelProps) {
+export function SidebarTogglePanel(props: IProps) {
   const {
     activeSection,
     activeConversationId,
@@ -36,7 +36,7 @@ export function SidebarTogglePanel(props: SidebarTogglePanelProps) {
       <AnimatePresence mode="wait">
         {sidebarOpen && (
           <motion.div
-            initial={{ width: 0, opacity: 0 }}
+            initial={false}
             animate={{ width: 368, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}

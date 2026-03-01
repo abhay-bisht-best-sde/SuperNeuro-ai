@@ -14,12 +14,13 @@ import { cn } from "@/(client)/libs/utils"
 import { industries } from "./constants"
 import type { WelcomeFormData } from "./schema"
 
-interface Step3IndustryProps {
+interface IProps {
   onNext: () => void
   onBack?: () => void
 }
 
-export function Step3Industry({ onNext, onBack }: Step3IndustryProps) {
+export function Step3Industry(props: IProps) {
+  const { onNext, onBack } = props
   const { watch, setValue, control } = useFormContext<WelcomeFormData>()
   const industry = watch("industry")
 

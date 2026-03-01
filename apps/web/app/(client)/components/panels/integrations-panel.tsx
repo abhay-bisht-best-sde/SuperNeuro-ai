@@ -1,14 +1,22 @@
 "use client"
 
-import { useCallback } from "react"
+import { useCallback, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
+import axios from "axios"
 import { motion } from "framer-motion"
 import { ExternalLink } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/(client)/components/ui/button"
-import { useUpdateUserIntegrations } from "@/(client)/components/query-boundary"
+import { useConnectIntegration } from "@/(client)/components/query-boundary/mutations"
 
 import { IntegrationLogo } from "@/(client)/components/panels/integration-logo"
 import { useBootupState } from "../bootup/bootup-store"
+import type { Integrations } from "@repo/database"
+
+interface IProps {
+  integrations: Integrations[]
+}
 
 
 const DEFAULT_TOOLS = [
@@ -51,20 +59,41 @@ function getIntegrationLogo(name: string): string {
   return INTEGRATION_LOGOS[name] ?? ""
 }
 
-export function IntegrationsPanel() {
+export function IntegrationsPanel(props: IProps) {
+  const { integrations } = props
+  const searchParams = useSearchParams()
+  const { connectedProviders } = useBootupState()
+  const connectIntegration = useConnectIntegration()
 
-  const {integrations, selectedIntegrationIds} = useBootupState()
-
-  const updateMutation = useUpdateUserIntegrations()
+  useEffect(() => {
+    const result = searchParams.get("integration")
+    if (result === "connected") {
+      toast.success("Integration connected successfully")
+    } else if (result === "error") {
+      toast.error("Failed to connect integration")
+    }
+  }, [searchParams])
 
   const handleConnect = useCallback(
-    (integrationId: string) => {
-      const next = selectedIntegrationIds.includes(integrationId)
-        ? selectedIntegrationIds.filter((id) => id !== integrationId)
-        : [...selectedIntegrationIds, integrationId]
-      updateMutation.mutate(next)
+    async (integration: Integrations) => {
+      try {
+        const data = await connectIntegration.mutateAsync({
+          provider: integration.name,
+          returnUrl: "/dashboard/integrations",
+        })
+        if (data?.redirectUrl) {
+          window.location.href = data.redirectUrl
+          return
+        }
+      } catch (err) {
+        const message =
+          axios.isAxiosError(err) && err.response?.data?.error
+            ? String(err.response.data.error)
+            : "Failed to connect integration"
+        toast.error(message)
+      }
     },
-    [selectedIntegrationIds, updateMutation]
+    [connectIntegration]
   )
 
   return (
@@ -81,7 +110,7 @@ export function IntegrationsPanel() {
             {DEFAULT_TOOLS.map((tool) => (
               <motion.div
                 key={tool.id}
-                initial={{ opacity: 0, y: 4 }}
+                initial={false}
                 animate={{ opacity: 1, y: 0 }}
                 className="flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5"
               >
@@ -125,17 +154,17 @@ export function IntegrationsPanel() {
           </p>
           <div className="flex flex-col rounded-xl border border-border p-2">
             {integrations.map((integration, index) => {
-                const isConnected = selectedIntegrationIds.includes(
-                  integration.id
-                )
+                const isConnected = connectedProviders.includes(integration.name)
                 const logoUrl = getIntegrationLogo(integration.name)
+                const isConnecting =
+                  connectIntegration.isPending &&
+                  connectIntegration.variables?.provider === integration.name
 
                 return (
                   <motion.div
                     key={integration.id}
-                    initial={{ opacity: 0, y: 4 }}
+                    initial={false}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.03 }}
                     className="flex items-center gap-3 rounded-lg px-2 py-2.5 hover:bg-muted/50"
                   >
                     <div
@@ -161,14 +190,15 @@ export function IntegrationsPanel() {
                     <Button
                       variant={isConnected ? "secondary" : "outline"}
                       size="sm"
-                      onClick={() => handleConnect(integration.id)}
-                      disabled={updateMutation.isPending}
+                      loading={isConnecting}
+                      onClick={() => handleConnect(integration)}
+                      disabled={isConnecting}
                     >
-                      {isConnected ? "Connected" : "Connect"}
+                      {!isConnecting && (isConnected ? "Connected" : "Connect")}
                     </Button>
-                </motion.div>
-              )
-            })}
+                  </motion.div>
+                )
+              })}
           </div>
         </section>
       </div>

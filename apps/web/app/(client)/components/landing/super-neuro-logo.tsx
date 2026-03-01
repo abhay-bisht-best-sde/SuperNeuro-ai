@@ -1,11 +1,13 @@
 import { BrainCircuit } from "lucide-react"
 import { cn } from "@/(client)/libs/utils"
 
-interface SuperNeuroLogoProps {
+interface IProps {
   className?: string
 }
 
-export function SuperNeuroLogo({ className }: SuperNeuroLogoProps) {
+export function SuperNeuroLogo(props: IProps) {
+  const { className } = props
+
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
       <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-primary">

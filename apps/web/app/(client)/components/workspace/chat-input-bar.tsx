@@ -7,7 +7,7 @@ import { Send } from "lucide-react"
 import { Button } from "@/(client)/components/ui/button"
 import { Textarea } from "@/(client)/components/ui/textarea"
 
-interface ChatInputBarProps {
+interface IProps {
   value: string
   placeholder?: string
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
@@ -15,7 +15,7 @@ interface ChatInputBarProps {
   onSubmit: () => void
 }
 
-export const ChatInputBar = forwardRef<HTMLTextAreaElement, ChatInputBarProps>(
+export const ChatInputBar = forwardRef<HTMLTextAreaElement, IProps>(
   function ChatInputBar(props, ref) {
     const {
       value,

@@ -11,13 +11,13 @@ import {
 } from "@/(client)/components/ui/empty"
 import { cn } from "@/(client)/libs/utils"
 
-interface EmptyStateProps {
+interface IProps {
   className?: string
   title?: string
   description?: string
 }
 
-export function EmptyState(props: EmptyStateProps) {
+export function EmptyState(props: IProps) {
   const {
     className,
     title = "No data",

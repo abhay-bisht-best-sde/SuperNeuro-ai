@@ -12,12 +12,13 @@ import {
 import { useFormContext } from "react-hook-form"
 import type { WelcomeFormData } from "./schema"
 
-interface Step1PurposeProps {
+interface IProps {
   onNext: () => void
   onBack?: () => void
 }
 
-export function Step1Purpose({ onNext }: Step1PurposeProps) {
+export function Step1Purpose(props: IProps) {
+  const { onNext } = props
   const { watch, setValue, control } = useFormContext<WelcomeFormData>()
   const purpose = watch("purpose")
 

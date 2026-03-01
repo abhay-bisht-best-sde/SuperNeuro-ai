@@ -5,48 +5,41 @@ import { useEffect } from "react"
 import { useAuth } from "@clerk/nextjs"
 
 import {
-  useIntegrations,
   useFetchUserConfig,
   QueryBoundary,
 } from "@/(client)/components/query-boundary"
 
 import { useBootupStore } from "./bootup-store"
 
-interface BootupWrapperProps {
+interface IProps {
   children: React.ReactNode
 }
 
-interface BootupWrapperContentProps {
+interface IContentProps {
   children: React.ReactNode
-  integrationsQuery: ReturnType<typeof useIntegrations>
   userConfigQuery: ReturnType<typeof useFetchUserConfig>
 }
 
-function BootupWrapperContent(props: BootupWrapperContentProps) {
-  const { children, integrationsQuery, userConfigQuery } = props
+function BootupWrapperContent(props: IContentProps) {
+  const { children, userConfigQuery } = props
   const setBootupState = useBootupStore((s) => s.setBootupState)
 
   useEffect(() => {
+    const data = userConfigQuery.data
     setBootupState({
-      integrations: integrationsQuery.data ?? [],
-      selectedIntegrationIds: userConfigQuery.data?.integrationIds ?? [],
-      userConfig: userConfigQuery.data ?? null,
+      connectedProviders: data?.connectedProviders ?? [],
+      userConfig: data?.userConfig ?? null,
       isReady: true,
     })
-  }, [
-    integrationsQuery.data,
-    userConfigQuery.data,
-    setBootupState,
-  ])
+  }, [userConfigQuery.data, setBootupState])
 
   return <>{children}</>
 }
 
-export function BootupWrapper(props: BootupWrapperProps) {
+export function BootupWrapper(props: IProps) {
   const { children } = props
 
   const { isSignedIn } = useAuth()
-  const integrationsQuery = useIntegrations()
   const userConfigQuery = useFetchUserConfig()
   const setBootupState = useBootupStore((s) => s.setBootupState)
 
@@ -54,7 +47,7 @@ export function BootupWrapper(props: BootupWrapperProps) {
     if (!isSignedIn) {
       setBootupState({
         integrations: [],
-        selectedIntegrationIds: [],
+        connectedProviders: [],
         userConfig: null,
         isReady: true,
       })
@@ -67,13 +60,10 @@ export function BootupWrapper(props: BootupWrapperProps) {
 
   return (
     <QueryBoundary
-      queries={[integrationsQuery, userConfigQuery] as const}
+      queries={[userConfigQuery] as const}
       loadingMessage="Loading…"
     >
-      <BootupWrapperContent
-        integrationsQuery={integrationsQuery}
-        userConfigQuery={userConfigQuery}
-      >
+      <BootupWrapperContent userConfigQuery={userConfigQuery}>
         {children}
       </BootupWrapperContent>
     </QueryBoundary>

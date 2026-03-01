@@ -14,12 +14,12 @@ import {
   FETCH_KNOWLEDGE_BASE_KEYS,
 } from "@/(client)/components/query-boundary"
 
-interface AddKnowledgeBaseModalProps {
+interface IProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-export function AddKnowledgeBaseModal(props: AddKnowledgeBaseModalProps) {
+export function AddKnowledgeBaseModal(props: IProps) {
   const { open, onOpenChange } = props
 
   const queryClient = useQueryClient()

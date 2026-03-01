@@ -8,7 +8,7 @@ import { QueryBoundary } from "./query-boundary"
 import { QUERY_STALE_TIME_MS } from "@/(client)/libs/constants"
 
 export { QueryBoundary }
-export type { QueryBoundaryProps } from "./query-boundary"
+export type { IProps as QueryBoundaryProps } from "./query-boundary"
 export {
   useFetchUserConfig,
   FETCH_USER_CONFIGS_KEYS,
@@ -27,7 +27,6 @@ export type {
 } from "./queries"
 export {
   useInsertUserConfig,
-  useUpdateUserIntegrations,
   useStoreFileMetadata,
   useRetryKnowledgeBase,
   useCreateConversation,

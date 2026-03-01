@@ -2,7 +2,7 @@ import type {
   ConversationWithMessages,
 } from "@/(client)/components/query-boundary"
 
-export interface ChatWorkspaceProps {
+export interface IProps {
   conversation: ConversationWithMessages | null
   hasConversations?: boolean
   isConversationLoading?: boolean

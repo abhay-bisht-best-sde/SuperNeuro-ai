@@ -3,12 +3,13 @@
 import { motion } from "framer-motion"
 import { cn } from "@/(client)/libs/utils"
 
-interface FloatingOrbProps {
+interface IProps {
   className?: string
   delay?: number
 }
 
-export function FloatingOrb({ className, delay = 0 }: FloatingOrbProps) {
+export function FloatingOrb(props: IProps) {
+  const { className, delay = 0 } = props
   return (
     <motion.div
       className={cn("absolute rounded-full blur-3xl", className)}

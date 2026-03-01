@@ -14,7 +14,7 @@ import {
   UPLOAD_RETRY_DELAYS,
 } from "@/(client)/libs/constants";
 
-interface FileUploaderProps {
+interface IProps {
   storeFileMetadata?: (data: {
     fileName: string;
     fileSize: number;
@@ -43,9 +43,9 @@ async function apiFetch<T>(
 }
 
 function createUppy(
-  storeFileMetadata?: FileUploaderProps["storeFileMetadata"],
-  onUploadComplete?: FileUploaderProps["onUploadComplete"],
-  onError?: FileUploaderProps["onError"]
+  storeFileMetadata?: IProps["storeFileMetadata"],
+  onUploadComplete?: IProps["onUploadComplete"],
+  onError?: IProps["onError"]
 ) {
   const uppy = new Uppy({
     id: "knowledge-base-uploader",
@@ -162,11 +162,9 @@ function createUppy(
   return uppy;
 }
 
-export function FileUploader({
-  storeFileMetadata,
-  onUploadComplete,
-  onError,
-}: FileUploaderProps) {
+export function FileUploader(props: IProps) {
+  const { storeFileMetadata, onUploadComplete, onError } = props
+
   const [uppy, setUppy] = useState<Uppy | null>(null);
   const storeRef = useRef(storeFileMetadata);
   const onCompleteRef = useRef(onUploadComplete);

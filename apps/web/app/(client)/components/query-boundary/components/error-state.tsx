@@ -5,13 +5,13 @@ import { AlertCircleIcon } from "lucide-react"
 import { Button } from "@/(client)/components/ui/button"
 import { cn } from "@/(client)/libs/utils"
 
-interface ErrorStateProps {
+interface IProps {
   className?: string
   message?: string
   onRetry?: () => void
 }
 
-export function ErrorState(props: ErrorStateProps) {
+export function ErrorState(props: IProps) {
   const { className, message = "Something went wrong", onRetry } = props
 
   return (

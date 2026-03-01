@@ -21,13 +21,13 @@ function getFileTypeLabel(name: string): string {
   return ext === "PDF" ? "PDF (type stored)" : `${ext || "Document"} (type stored)`
 }
 
-interface KnowledgePanelProps {
+interface IProps {
   knowledgeBases: KnowledgeBaseListItem[]
   onAddKnowledgeBase: () => void
   onRetry: (id: string) => void
 }
 
-export function KnowledgePanel(props: KnowledgePanelProps) {
+export function KnowledgePanel(props: IProps) {
   const { knowledgeBases, onAddKnowledgeBase, onRetry } = props
 
   return (
@@ -58,9 +58,8 @@ export function KnowledgePanel(props: KnowledgePanelProps) {
             return (
               <motion.div
                 key={kb.id}
-                initial={{ opacity: 0, y: 8 }}
+                initial={false}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
               >
                 <AccordionItem
                   value={kb.id}

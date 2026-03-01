@@ -10,7 +10,7 @@ import { useRetryKnowledgeBase } from "@/(client)/components/query-boundary"
 import type { SidebarSection } from "@/(client)/libs/types"
 import type { ConversationWithMessages } from "@/(client)/components/query-boundary"
 
-interface MainDashboardContentProps {
+interface IProps {
   activeSection: SidebarSection
   activeConversationId: string | null
   activeConversation: ConversationWithMessages | null
@@ -24,7 +24,7 @@ interface MainDashboardContentProps {
   onSendMessage: (content: string) => void
 }
 
-function MainDashboardContentInner(props: MainDashboardContentProps) {
+function MainDashboardContentInner(props: IProps) {
   const {
     activeSection,
     activeConversationId,

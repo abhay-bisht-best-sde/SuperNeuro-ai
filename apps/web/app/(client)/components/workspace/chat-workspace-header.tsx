@@ -4,13 +4,13 @@ import { PanelLeftClose, PanelLeft } from "lucide-react"
 
 import { Button } from "@/(client)/components/ui/button"
 
-interface ChatWorkspaceHeaderProps {
+interface IProps {
   title: string
   sidebarOpen?: boolean
   onSidebarToggle?: () => void
 }
 
-export function ChatWorkspaceHeader(props: ChatWorkspaceHeaderProps) {
+export function ChatWorkspaceHeader(props: IProps) {
   const { title, sidebarOpen = true, onSidebarToggle } = props
 
   return (

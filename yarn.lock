@@ -733,6 +733,30 @@
   dependencies:
     "@clerk/shared" "^3.47.0"
 
+"@composio/client@0.1.0-alpha.56":
+  version "0.1.0-alpha.56"
+  resolved "https://registry.npmjs.org/@composio/client/-/client-0.1.0-alpha.56.tgz"
+  integrity sha512-hNgChB5uhdvT4QXNzzfUuvtG6vrfanQQFY2hPyKwbeR4x6mEmIGFiZ4y2qynErdUWldAZiB/7pY/MBMg6Q9E0g==
+
+"@composio/core@^0.6.3":
+  version "0.6.3"
+  resolved "https://registry.npmjs.org/@composio/core/-/core-0.6.3.tgz"
+  integrity sha512-PZm4LQGMaaDFHWUouMHqKPg5fNfgjM2l0zF0Vw/vfWJ34KYyo1ne6YjhGvBDmOIKPByT6Dal4/ff7AHpjedL/w==
+  dependencies:
+    "@composio/client" "0.1.0-alpha.56"
+    "@composio/json-schema-to-zod" "0.1.20"
+    "@types/json-schema" "^7.0.15"
+    chalk "^4.1.2"
+    openai "^6.16.0"
+    pusher-js "^8.4.0"
+    semver "^7.7.2"
+    zod-to-json-schema "^3.25.1"
+
+"@composio/json-schema-to-zod@0.1.20":
+  version "0.1.20"
+  resolved "https://registry.npmjs.org/@composio/json-schema-to-zod/-/json-schema-to-zod-0.1.20.tgz"
+  integrity sha512-d4V34itLrUWG/VBh7ciznKcxF/T22MBLHmuEzHoX0zsBOHsUmjYz5qtDh20S2p3FE+HHvLZxpXiv8yfdd4yI+Q==
+
 "@date-fns/tz@^1.4.1":
   version "1.4.1"
   resolved "https://registry.npmjs.org/@date-fns/tz/-/tz-1.4.1.tgz"
@@ -1814,6 +1838,7 @@
     tailwind-merge "^3.3.1"
     vaul "^1.1.2"
     zod "^3.24.1"
+    zustand "^5.0.11"
 
 "@repo/worker@file:/Users/abhaybisht/Desktop/super_neuro_assignment.ai/apps/worker":
   resolved "file:apps/worker"
@@ -3994,7 +4019,7 @@ exifr@^7.0.0:
   resolved "https://registry.npmjs.org/exifr/-/exifr-7.1.3.tgz"
   integrity sha512-g/aje2noHivrRSLbAUtBPWFbxKdKhgj/xr1vATDdUXPOFYJlQ62Ft0oy+72V6XLIpDJfHs6gXLbBLAolqOXYRw==
 
-express@^4.21.0:
+express@^4.21.0, express@^4.21.1:
   version "4.22.1"
   resolved "https://registry.npmjs.org/express/-/express-4.22.1.tgz"
   integrity sha512-F2X8g9P1X7uCPZMA3MVf9wcTqlyNp7IhH5qPCI0izhaOIYXaW9L535tGA3qmjRzpH+bZczqq7hVKxTR4NWnu+g==
@@ -5256,7 +5281,7 @@ onetime@^5.1.2:
   dependencies:
     mimic-fn "^2.1.0"
 
-openai@*, openai@^6.24.0:
+openai@*, openai@^6.16.0, openai@^6.24.0:
   version "6.25.0"
   resolved "https://registry.npmjs.org/openai/-/openai-6.25.0.tgz"
   integrity sha512-mEh6VZ2ds2AGGokWARo18aPISI1OhlgdEIC1ewhkZr8pSIT31dec0ecr9Nhxx0JlybyOgoAT1sWeKtwPZzJyww==
@@ -5550,6 +5575,13 @@ pure-rand@^6.1.0:
   resolved "https://registry.npmjs.org/pure-rand/-/pure-rand-6.1.0.tgz"
   integrity sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==
 
+pusher-js@^8.4.0:
+  version "8.4.0"
+  resolved "https://registry.npmjs.org/pusher-js/-/pusher-js-8.4.0.tgz"
+  integrity sha512-wp3HqIIUc1GRyu1XrP6m2dgyE9MoCsXVsWNlohj0rjSkLf+a0jLvEyVubdg58oMk7bhjBWnFClgp8jfAa6Ak4Q==
+  dependencies:
+    tweetnacl "^1.0.3"
+
 qs@^6.13.1:
   version "6.15.0"
   resolved "https://registry.npmjs.org/qs/-/qs-6.15.0.tgz"
@@ -5810,7 +5842,7 @@ selderee@^0.11.0:
   dependencies:
     parseley "^0.12.0"
 
-semver@^7.6.3, semver@^7.7.3:
+semver@^7.6.3, semver@^7.7.2, semver@^7.7.3:
   version "7.7.4"
   resolved "https://registry.npmjs.org/semver/-/semver-7.7.4.tgz"
   integrity sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==
@@ -6198,6 +6230,11 @@ tw-animate-css@1.3.3:
   resolved "https://registry.npmjs.org/tw-animate-css/-/tw-animate-css-1.3.3.tgz"
   integrity sha512-tXE2TRWrskc4TU3RDd7T8n8Np/wCfoeH9gz22c7PzYqNPQ9FBGFbWWzwL0JyHcFp+jHozmF76tbHfPAx22ua2Q==
 
+tweetnacl@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.npmjs.org/tweetnacl/-/tweetnacl-1.0.3.tgz"
+  integrity sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==
+
 type-check@^0.4.0, type-check@~0.4.0:
   version "0.4.0"
   resolved "https://registry.npmjs.org/type-check/-/type-check-0.4.0.tgz"
@@ -6467,7 +6504,12 @@ yocto-queue@^0.1.0:
   resolved "https://registry.npmjs.org/yocto-queue/-/yocto-queue-0.1.0.tgz"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
 
-zod@^3.23.8, zod@^3.24.1, "zod@^3.25 || ^4.0", "zod@^3.25.0 || ^4.0.0", "zod@^3.25.32 || ^4.2.0", zod@^3.25.76, "zod@^3.25.76 || ^4":
+zod-to-json-schema@^3.25.1, zod-to-json-schema@^3.x:
+  version "3.25.1"
+  resolved "https://registry.npmjs.org/zod-to-json-schema/-/zod-to-json-schema-3.25.1.tgz"
+  integrity sha512-pM/SU9d3YAggzi6MtR4h7ruuQlqKtad8e9S0fmxcMi+ueAK5Korys/aWcV9LIIHTVbj01NdzxcnXSN+O74ZIVA==
+
+zod@^3.23.8, zod@^3.24.1, "zod@^3.25 || ^4", "zod@^3.25 || ^4.0", "zod@^3.25.0 || ^4.0.0", "zod@^3.25.32 || ^4.2.0", zod@^3.25.76, "zod@^3.25.76 || ^4", "zod@>=3.25.76 <5":
   version "3.25.76"
   resolved "https://registry.npmjs.org/zod/-/zod-3.25.76.tgz"
   integrity sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==
