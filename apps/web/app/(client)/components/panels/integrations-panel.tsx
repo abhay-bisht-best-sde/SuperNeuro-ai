@@ -127,10 +127,10 @@ export function IntegrationsPanel(props: IProps) {
             Integrations
           </h3>
           <p className="mb-2 text-xs text-muted-foreground">
-            Connect integrations to use with Composio.
+            Connect integrations for your AI assistant.
           </p>
           <div className="flex flex-col rounded-xl border border-border p-2">
-            {integrations.map((integration, index) => {
+            {integrations.map((integration) => {
                 const isConnected = connectedProviders.includes(integration.name)
                 const logoUrl = getIntegrationLogo(integration.name)
                 const isConnecting =

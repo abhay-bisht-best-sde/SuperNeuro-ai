@@ -8,11 +8,3 @@ export interface PdfIndexPayload {
   fileSize: number;
 }
 
-export const IMAGE_PROCESSING_MESSAGE_TYPE = "image.process";
-
-export interface ImageProcessingPayload {
-  imageId: string;
-  knowledgeBaseId: string;
-  r2Key: string;
-  pageNumber: number;
-}

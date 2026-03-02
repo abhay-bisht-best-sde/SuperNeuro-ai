@@ -24,10 +24,13 @@ export async function GET() {
 
     const connectedProviders =
       userConfig?.userIntegrationConnections.map((c) => c.provider) ?? [];
-    const userConfigResponse = userConfig ? { ...userConfig } : null;
-    if (userConfigResponse) {
-      delete (userConfigResponse as any).userIntegrationConnections;
-    }
+    const userConfigResponse = userConfig
+      ? (() => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars -- intentionally omitted from response
+          const { userIntegrationConnections, ...rest } = userConfig
+          return rest
+        })()
+      : null
     return NextResponse.json({
       userConfig: userConfigResponse,
       connectedProviders,

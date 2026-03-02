@@ -9,7 +9,7 @@ import {
   publishConversationEvent,
   type ConversationGraphStageEvent,
 } from "@/(server)/lib/ably"
-import { runChatGraph } from "@/(server)/lib/chat/chat-graph"
+import { runChatGraph } from "@/(server)/lib/chat"
 import { INTERNAL_ERROR, SYSTEM_MESSAGE_OBJ } from "@/(server)/core/constants"
 import { MessageRole, type IntegrationType } from "@repo/database"
 

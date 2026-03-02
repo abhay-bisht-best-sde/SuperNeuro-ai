@@ -3,8 +3,8 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev --filter='!@repo/worker'",
-    "start": "turbo start --filter='!@repo/worker'",
+    "dev": "turbo dev",
+    "start": "turbo start",
     "lint": "turbo lint",
     "clean": "turbo clean && rm -rf node_modules",
     "db:generate": "turbo db:generate --filter=@repo/database",
@@ -23,8 +23,5 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ],
-  "dependencies": {
-    "@composio/core": "^0.6.3"
-  }
+  ]
 }

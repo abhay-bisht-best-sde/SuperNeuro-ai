@@ -1,7 +1,10 @@
 import type { Prisma } from "@repo/database"
 
+import { logger } from "@/core/logger"
 import { getRedis } from "@/core/redis"
 import { CACHE_PREFIX, CACHE_TTL_SECONDS } from "@/(server)/core/constants"
+
+const log = logger.withTag("conversation-cache")
 
 export type CachedConversation = Prisma.ConversationGetPayload<{
   include: { messages: true }
@@ -33,7 +36,7 @@ export async function setCachedConversation(
     const key = `${CACHE_PREFIX}${id}`
     await redis.setex(key, CACHE_TTL_SECONDS, JSON.stringify(data))
   } catch (error) {
-    console.error(`Failed to set cached conversation ${id}`, error)
+    log.warn("Failed to set cached conversation", { id, error })
   }
 }
 
@@ -44,6 +47,6 @@ export async function invalidateConversation(id: string): Promise<void> {
   try {
     await redis.del(`${CACHE_PREFIX}${id}`)
   } catch (error) {
-    console.error(`Failed to invalidate conversation ${id}`, error)
+    log.warn("Failed to invalidate conversation", { id, error })
   }
 }

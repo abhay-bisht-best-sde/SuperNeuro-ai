@@ -24,16 +24,33 @@ export type GraphStage =
   | "routing"
   | "direct_llm"
   | "tool_executing"
+  | "tool_executed"
   | "tool_step"
   | "synthesizing"
   | "tavily"
   | "firecrawl"
   | "composio"
 
+export type StepStatus = "pending" | "in_progress" | "completed"
+
+export interface ExecutionStep {
+  id: string
+  label: string
+  status: StepStatus
+}
+
+export interface ChecklistItem {
+  id: string
+  label: string
+  status: StepStatus
+}
+
 export interface ConversationGraphStageEvent {
   type: ConversationEventType.GRAPH_STAGE
   stage: GraphStage
   label: string
+  /** Ordered list of all events in arrival order. Use for Cursor-like checklist UI. */
+  checklistItems: ChecklistItem[]
   details?: {
     intent?: string
     requiresTools?: boolean
@@ -41,6 +58,7 @@ export interface ConversationGraphStageEvent {
     stepId?: string
     stepIndex?: number
     totalSteps?: number
+    steps?: ExecutionStep[]
   }
 }
 

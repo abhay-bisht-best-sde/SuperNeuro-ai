@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "../api-client";
 import {
   FETCH_KNOWLEDGE_BASE_KEYS,
-  KNOWLEDGE_BASE_POLL_INTERVAL_MS,
   QUERY_STALE_TIME_MS,
 } from "@/(client)/libs/constants"
 import type {
@@ -42,6 +41,5 @@ export function useKnowledgeBase() {
       );
     },
     staleTime: QUERY_STALE_TIME_MS,
-    // refetchInterval: KNOWLEDGE_BASE_POLL_INTERVAL_MS,
   });
 }

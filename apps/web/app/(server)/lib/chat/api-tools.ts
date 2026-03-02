@@ -17,13 +17,6 @@ import type {
 export { TAVILY_WEB_SEARCH, FIRECRAWL_SCRAPE_URL }
 export type { ToolExecutionResult, TavilySearchInput, FirecrawlScrapeInput } from "@/(server)/core/types"
 
-export function getApiToolsAvailable(): string[] {
-  const tools: string[] = []
-  if (env.TAVILY_API_KEY) tools.push(TAVILY_WEB_SEARCH)
-  if (env.FIRECRAWL_API_KEY) tools.push(FIRECRAWL_SCRAPE_URL)
-  return tools
-}
-
 export type ApiToolEventCallback = (toolName: string) => void
 
 const log = logger.withTag("api-tools")
@@ -90,17 +83,6 @@ export function getFirecrawlTool(
       return JSON.stringify(result.error ? { error: result.error } : result.data)
     },
   })
-}
-
-export function getApiToolsAsStructuredTools(
-  onToolCall?: ApiToolEventCallback
-): DynamicStructuredTool[] {
-  const tools: DynamicStructuredTool[] = []
-  const tavily = getTavilyTool(onToolCall)
-  if (tavily) tools.push(tavily)
-  const firecrawl = getFirecrawlTool(onToolCall)
-  if (firecrawl) tools.push(firecrawl)
-  return tools
 }
 
 export async function executeTavilySearch(

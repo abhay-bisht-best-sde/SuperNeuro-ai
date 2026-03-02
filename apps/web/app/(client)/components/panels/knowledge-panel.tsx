@@ -50,7 +50,7 @@ export function KnowledgePanel(props: IProps) {
           collapsible
           className="flex flex-col gap-2"
         >
-          {knowledgeBases.map((kb, index) => {
+          {knowledgeBases.map((kb) => {
             const isProcessing =
               kb.status === KnowledgeBaseIndexingStatus.INDEXING ||
               kb.status === KnowledgeBaseIndexingStatus.PENDING

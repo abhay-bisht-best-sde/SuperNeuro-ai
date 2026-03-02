@@ -9,14 +9,16 @@ import { cn } from "@/(client)/libs/utils"
 
 import type { Message } from "@repo/database"
 
+const USER_AVATAR_GRADIENT =
+  "linear-gradient(135deg, oklch(0.65 0.25 295), oklch(0.60 0.15 250))"
+const AI_AVATAR_GRADIENT =
+  "linear-gradient(135deg, oklch(0.38 0.06 295), oklch(0.42 0.05 285))"
+
 function UserAvatar() {
   return (
     <div
       className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-      style={{
-        background:
-          "linear-gradient(135deg, oklch(0.38 0.06 295), oklch(0.42 0.05 285))",
-      }}
+      style={{ background: USER_AVATAR_GRADIENT }}
     >
       <svg
         width="18"
@@ -40,10 +42,7 @@ function AIAvatar() {
   return (
     <div
       className="animate-avatar-glow-ai relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-      style={{
-        background:
-          "linear-gradient(135deg, oklch(0.65 0.25 295), oklch(0.60 0.15 250))",
-      }}
+      style={{ background: AI_AVATAR_GRADIENT }}
     >
       <div
         className="absolute inset-0 rounded-full opacity-60"
@@ -110,18 +109,12 @@ export function ChatMessage(props: IProps) {
             "w-fit max-w-lg rounded-2xl px-4 py-3",
             isUser
               ? "text-primary-foreground"
-              : "border border-white/10 text-primary-foreground"
+              : "border border-border bg-muted/50 text-foreground"
           )}
           style={
-            !isUser
-              ? {
-                  background:
-                    "linear-gradient(135deg, oklch(0.65 0.25 295), oklch(0.60 0.15 250))",
-                }
-              : {
-                  background:
-                    "linear-gradient(135deg, oklch(0.38 0.06 295), oklch(0.42 0.05 285))",
-                }
+            isUser
+              ? { background: USER_AVATAR_GRADIENT }
+              : undefined
           }
         >
           {isUser ? (
@@ -137,7 +130,7 @@ export function ChatMessage(props: IProps) {
                 "[&_pre]:rounded-lg [&_pre]:bg-muted/50 [&_pre]:p-3",
                 "[&_code]:rounded [&_code]:bg-muted/50 [&_code]:px-1 [&_code]:py-0.5",
                 "[&_pre_code]:bg-transparent [&_pre_code]:p-0",
-                "[&_a]:text-primary-foreground [&_a]:underline [&_a]:underline-offset-2 [&_a]:decoration-primary-foreground/50 hover:[&_a]:decoration-primary-foreground",
+                "[&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2 [&_a]:decoration-primary/50 hover:[&_a]:decoration-primary",
                 "[&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-white/20 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_td]:border [&_td]:border-white/20 [&_td]:px-3 [&_td]:py-2"
               )}
             >

@@ -142,12 +142,6 @@ function createUppy(
         ? "Upload completed but storage key was missing. File metadata could not be saved."
         : "Upload completed but file info was incomplete.";
       const err = new Error(errorMessage);
-      if (missingKey) {
-        console.error("[FileUploader] Missing key in upload response", {
-          response: res,
-          fileName: file?.name,
-        });
-      }
       onError?.(err);
     }
   });

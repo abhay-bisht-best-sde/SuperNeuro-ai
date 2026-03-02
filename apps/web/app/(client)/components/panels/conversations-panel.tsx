@@ -91,7 +91,7 @@ function ConversationsPanelInner(props: IInnerProps) {
 
         <ScrollArea className="flex-1 px-2">
           <AnimatePresence mode="popLayout">
-            {conversations.map((conversation, index) => (
+            {conversations.map((conversation) => (
               <motion.div
                 key={conversation.id}
                 role="button"

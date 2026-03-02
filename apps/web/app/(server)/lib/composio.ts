@@ -135,9 +135,11 @@ export async function createComposioSession(params: {
     sessionConfig.toolkits = toolkits
   }
   const authConfigs: Record<string, string> = {}
-  for (const [integration, configId] of Object.entries(rawAuthConfigs)) {
-    if (configId && INTEGRATION_TO_COMPOSIO_TOOLKIT[integration as IntegrationType]) {
-      authConfigs[INTEGRATION_TO_COMPOSIO_TOOLKIT[integration as IntegrationType]] = configId
+  for (const provider of connectedProviders) {
+    const configId = rawAuthConfigs[provider]
+    const toolkitSlug = INTEGRATION_TO_COMPOSIO_TOOLKIT[provider]
+    if (configId && toolkitSlug && toolkits.includes(toolkitSlug)) {
+      authConfigs[toolkitSlug] = configId
     }
   }
   if (Object.keys(authConfigs).length > 0) {
