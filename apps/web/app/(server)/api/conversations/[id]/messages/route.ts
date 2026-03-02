@@ -1,17 +1,9 @@
 import { NextResponse } from "next/server"
 
-import { prisma } from "@/core/prisma"
 import { logger } from "@/core/logger"
 import { requireAuth } from "@/(server)/lib/auth"
-import { invalidateConversation } from "@/(server)/lib/conversation-cache"
-import {
-  ConversationEventType,
-  publishConversationEvent,
-  type ConversationGraphStageEvent,
-} from "@/(server)/lib/ably"
-import { runChatGraph, runRagGraph } from "@/(server)/lib/chat"
-import { INTERNAL_ERROR, SYSTEM_MESSAGE_OBJ } from "@/(server)/core/constants"
-import { MessageRole, ConversationType, type IntegrationType } from "@repo/database"
+import { processConversationMessage } from "@/(server)/lib/message-processor"
+import { INTERNAL_ERROR } from "@/(server)/core/constants"
 
 const log = logger.withTag("api/conversations/[id]/messages")
 
@@ -31,124 +23,15 @@ export async function POST(
     const content = typeof body.content === "string" ? body.content.trim() : null
 
     if (!content) {
-      return NextResponse.json(
-        { error: "Content is required" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Content is required" }, { status: 400 })
     }
 
-    const conversation = await prisma.conversation.findFirst({
-      where: { id: conversationId, userId },
-      include: {
-        messages: {
-          orderBy: { createdAt: "asc" },
-        },
-      },
-    })
+    const url = new URL(request.url)
+    const origin = url.origin
 
-    if (!conversation) {
-      return NextResponse.json(
-        { error: "Conversation not found" },
-        { status: 404 }
-      )
-    }
+    await processConversationMessage({ userId, conversationId, content, origin })
 
-    const userConfig = await prisma.userConfig.findUnique({
-      where: { userId },
-      include: {
-        userIntegrationConnections: {
-          where: { connected: true },
-          select: { provider: true },
-        },
-      },
-    })
-    const connectedProviders: IntegrationType[] =
-      userConfig?.userIntegrationConnections.map((c) => c.provider) ?? []
-
-    const userMessage = await prisma.message.create({
-      data: {
-        conversationId,
-        role: MessageRole.USER,
-        content,
-      },
-    })
-
-    try {
-      await publishConversationEvent(userId, conversationId, {
-        type: ConversationEventType.THINKING,
-      })
-    } catch (e) {
-      log.warn("Ably thinking event failed", e)
-    }
-
-    const messages = [
-      SYSTEM_MESSAGE_OBJ,
-      ...conversation.messages.map((m) => ({
-        role: m.role.toLowerCase(),
-        content: m.content,
-      })),
-      { role: "user", content },
-    ]
-
-    const onGraphEvent = async (event: ConversationGraphStageEvent) => {
-      try {
-        await publishConversationEvent(userId, conversationId, event)
-      } catch (e) {
-        log.warn("Ably graph stage event failed", e)
-      }
-    }
-
-    const conversationType = conversation.type ?? ConversationType.WORKFLOW
-
-    const result =
-      conversationType === ConversationType.RAG
-        ? await runRagGraph({
-            messages,
-            userId,
-            onEvent: onGraphEvent,
-          })
-        : await runChatGraph({
-            messages,
-            userId,
-            conversationSummary: null,
-            connectedProviders,
-            onEvent: onGraphEvent,
-          })
-
-    const assistantMessage = await prisma.message.create({
-      data: {
-        conversationId,
-        role: MessageRole.ASSISTANT,
-        content: result.content,
-        executionStepsWithStatus: result.ragSources?.length
-          ? ({ ragSources: result.ragSources } as object)
-          : undefined,
-      },
-    })
-
-    try {
-      await publishConversationEvent(userId, conversationId, {
-        type: ConversationEventType.MESSAGE,
-        message: {
-          id: assistantMessage.id,
-          role: "assistant",
-          content: assistantMessage.content,
-          createdAt: assistantMessage.createdAt.toISOString(),
-          ragSources: result.ragSources,
-        },
-      })
-    } catch (e) {
-      log.warn("Ably message event failed", e)
-    }
-
-    await invalidateConversation(conversationId)
-
-    log.success("Message and response saved", {
-      conversationId,
-      messageId: userMessage.id,
-    })
-
-    return NextResponse.json({success: true})
+    return NextResponse.json({ success: true })
   } catch (err) {
     log.error("Send message failed", err)
     return NextResponse.json({ error: INTERNAL_ERROR }, { status: 500 })

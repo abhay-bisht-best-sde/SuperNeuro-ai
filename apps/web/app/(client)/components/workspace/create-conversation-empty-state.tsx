@@ -6,25 +6,20 @@ import { Plus } from "lucide-react"
 import { Button } from "@/(client)/components/ui/button"
 
 interface IProps {
-  hasConversations: boolean
+  hasConversations?: boolean
   onCreateConversation?: () => void
   createButtonLabel?: string
 }
 
 export function CreateConversationEmptyState(props: IProps) {
   const {
-    hasConversations,
     onCreateConversation,
     createButtonLabel = "New Conversation",
   } = props
 
-  const heading = hasConversations
-    ? "Select a conversation or create a new one"
-    : "Create a conversation to get started"
-
-  const subheading = hasConversations
-    ? "Choose a conversation from the sidebar or click below to start a new chat"
-    : "You don't have any conversations yet. Click below to start your first one."
+  const heading = "Select a conversation or create a new one"
+  const subheading =
+    "Choose a conversation from the sidebar or click below to start a new chat"
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-4">

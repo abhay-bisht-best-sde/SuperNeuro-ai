@@ -16,6 +16,8 @@ const log = logger.withTag("api/integrations/connect")
 const connectBodySchema = z.object({
   provider: z.enum(VALID_COMPOSIO_PROVIDERS),
   returnUrl: z.string().optional(),
+  /** When connecting from in-chat, pass this so the callback can resume the conversation */
+  conversationId: z.string().optional(),
 })
 
 export async function POST(req: Request) {
@@ -31,7 +33,7 @@ export async function POST(req: Request) {
         { status: 400 }
       )
     }
-    const { provider, returnUrl } = parsed.data
+    const { provider, returnUrl, conversationId } = parsed.data
 
     const authConfigId = getComposioAuthConfigId(provider)
     if (!authConfigId) {
@@ -47,9 +49,8 @@ export async function POST(req: Request) {
     const callbackUrlBase = `${url.origin}/api/integrations/callback`
     const callbackParams = new URLSearchParams()
     callbackParams.set("provider", provider)
-    if (returnUrl) {
-      callbackParams.set("returnUrl", returnUrl)
-    }
+    if (returnUrl) callbackParams.set("returnUrl", returnUrl)
+    if (conversationId) callbackParams.set("conversationId", conversationId)
     const callbackUrl = `${callbackUrlBase}?${callbackParams.toString()}`
 
     const { redirectUrl } = await initiateComposioConnection({
@@ -58,7 +59,7 @@ export async function POST(req: Request) {
       callbackUrl,
     })
 
-    log.success("Composio connection initiated", { userId, provider })
+    log.success("Composio connection initiated", { userId, provider, conversationId })
     return NextResponse.json({ redirectUrl })
   } catch (err) {
     log.error("Composio connect failed", err)

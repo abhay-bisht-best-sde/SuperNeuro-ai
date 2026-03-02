@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 
 import { IconSidebar } from "@/(client)/components/layout/icon-sidebar"
 import { useConversations as useConversationsQuery } from "@/(client)/components/query-boundary"
+import { ResourceViewerModals } from "@/(client)/components/resource-viewer"
 import { useConversations } from "../../hooks/use-conversations"
 import { MainDashboardContent } from "./components/main-dashboard-content"
 import { DashboardGuard } from "./dashboard-guard"
@@ -36,6 +37,8 @@ export default function DashboardLayout() {
     isConversationLoading,
     isTyping,
     graphStage,
+    streamingContent,
+    requiresConnection,
     activeConversation,
     setActiveConversationId,
     handleNewConversation,
@@ -49,6 +52,7 @@ export default function DashboardLayout() {
   return (
     <DashboardGuard>
       <BootupWrapper>
+        <ResourceViewerModals />
         <div className="flex h-screen w-screen overflow-hidden bg-background">
           <MemoizedIconSidebar />
           <div className="flex flex-1 flex-col overflow-hidden">
@@ -65,6 +69,8 @@ export default function DashboardLayout() {
               isConversationLoading={isConversationLoading}
               isTyping={isTyping}
               graphStage={graphStage}
+              streamingContent={streamingContent}
+              requiresConnection={requiresConnection}
             />
           </div>
         </div>

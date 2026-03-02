@@ -2,10 +2,8 @@ import { logger } from "@/core/logger"
 
 import type { ChatGraphInput, ChatGraphResult } from "@/(server)/core/types"
 import { createChecklistEmitter } from "./checklist-emitter"
-import { runRouter } from "./task_router"
-import { toBaseMessages, resolveCapabilities } from "./utils"
-import { executeTavilyPath } from "./paths/tavily-path"
-import { executeFirecrawlPath } from "./paths/firecrawl-path"
+import { routeAndPlan } from "./task_router"
+import { toBaseMessages } from "./utils"
 import { executeComposioPath } from "./paths/composio-path"
 import { executeDirectLlmPath } from "./paths/direct-llm-path"
 import { getChatModel } from "./model"
@@ -26,72 +24,68 @@ export async function runChatGraph(input: ChatGraphInput): Promise<ChatGraphResu
   const lastUserContent =
     messages.filter((m) => m.role.toLowerCase() === "user").pop()?.content ?? ""
 
-  const capabilities = resolveCapabilities(connectedProviders)
-  const { hasTavily, hasFirecrawl, hasComposio, availableTools } = capabilities
-
-  log.debug("Capabilities", {
-    hasTavily,
-    hasFirecrawl,
-    hasComposio,
-    availableTools,
-  })
+  // Build a condensed conversation history for the router so it can
+  // understand follow-up messages like "give me the link" or "send it".
+  // We take the last few messages (excluding system) to keep the prompt short.
+  const recentMessages = messages
+    .filter((m) => m.role.toLowerCase() !== "system")
+    .slice(-6)
+  const conversationHistory =
+    recentMessages.length > 1
+      ? recentMessages
+          .map((m) => `${m.role.toUpperCase()}: ${m.content.slice(0, 200)}`)
+          .join("\n")
+      : undefined
 
   const emitter = createChecklistEmitter(onEvent)
-
   emitter.addStage("routing", "Analyzing your request...")
 
-  const route = await runRouter({
-    lastUserContent,
-    availableTools,
+  // ─── Single LLM call: route + plan ───
+  const routeResult = await routeAndPlan({
+    query: lastUserContent,
+    connectedProviders,
     model,
+    conversationHistory,
   })
 
-  log.info("Router: selected route", { route, availableTools })
+  const { route, connectedProviders: selectedConnected, missingProviders, intent } = routeResult
 
-  if (route === "tavily" && hasTavily) {
-    const content = await executeTavilyPath({
-      baseMessages,
-      model,
-      emitter,
-    })
-    return { content }
+  log.info("Router decision", { route, selectedConnected, missingProviders, intent })
+
+  // ─── Auth pre-check: missing provider → surface to user BEFORE executing ───
+  // Do NOT let the agent discover missing auth at runtime — that causes
+  // infinite meta-tool loops while the LLM tries to figure out the problem.
+  if (route === "composio" && missingProviders.length > 0) {
+    const firstMissing = missingProviders[0]!
+    log.info("Required provider not connected", { provider: firstMissing })
+    emitter.addStage("planning", `Connect ${firstMissing} to continue`, { intent })
+    return { type: "requires_connection", provider: firstMissing }
   }
 
-  if (route === "firecrawl" && hasFirecrawl) {
-    const content = await executeFirecrawlPath({
-      baseMessages,
-      model,
-      emitter,
-    })
-    return { content }
-  }
+  // ─── Composio path: only if we have connected providers to work with ───
+  if (route === "composio" && selectedConnected.length > 0 && userId) {
+    emitter.addStage("planning", intent, { intent })
 
-  if (route === "composio" && hasComposio && userId) {
     const response = await executeComposioPath({
       userId,
       connectedProviders,
+      selectedProviders: selectedConnected,
       baseMessages,
-      lastUserContent,
       model,
       emitter,
     })
-    if (response !== null) return { content: response }
+
+    if (response !== null) {
+      return { type: "message", content: response }
+    }
+
+    log.warn("Composio path returned null, falling through to direct_llm")
   }
 
-  const result = await executeDirectLlmPath({
-    baseMessages,
-    model,
-    emitter,
-    userId: userId ?? null,
-    lastUserContent,
-    ragMode: false,
-  })
+  // ─── Fallback: direct LLM ───
+  const content = await executeDirectLlmPath({ baseMessages, model, emitter })
 
-  log.info("runChatGraph completed", {
-    route,
-    responseLength: result.content.length,
-    hasRagSources: Boolean(result.ragSources?.length),
-  })
+  log.info("runChatGraph completed", { route, responseLength: content.length })
 
-  return result
+  return { type: "message", content }
 }

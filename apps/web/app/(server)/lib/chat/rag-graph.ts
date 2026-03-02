@@ -31,8 +31,8 @@ export async function runRagGraph(input: ChatGraphInput): Promise<ChatGraphResul
   })
 
   log.info("runRagGraph completed", {
-    responseLength: result.content.length,
-    hasRagSources: Boolean(result.ragSources?.length),
+    responseLength: result.type === "message" ? result.content.length : 0,
+    hasRagSources: result.type === "message" && Boolean(result.ragSources?.length),
   })
 
   return result

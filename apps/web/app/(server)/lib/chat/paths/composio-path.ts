@@ -1,82 +1,161 @@
-import type { BaseMessage } from "@langchain/core/messages"
+import {
+  AIMessage,
+  SystemMessage,
+  ToolMessage,
+  type BaseMessage,
+} from "@langchain/core/messages"
 import type { ChatOpenAI } from "@langchain/openai"
-import { createAgent } from "langchain"
-
-import { createComposioSession } from "@/(server)/lib/composio"
-import type { ChecklistEmitter } from "../checklist-emitter"
-import { runComposioPlanner } from "../task_router"
-import { filterToolsByProviders, type LangChainTool } from "../utils"
-import { executeAgentPath } from "./agent-executor"
-
 import type { IntegrationType } from "@repo/database"
 
-type AgentTools = Parameters<typeof createAgent>[0]["tools"]
+import { logger } from "@/core/logger"
+import { getComposioTools } from "@/(server)/lib/composio"
+import { SYSTEM_MESSAGE } from "@/(server)/core/constants"
+import type { ChecklistEmitter } from "../checklist-emitter"
+import { DynamicStructuredTool } from "@langchain/core/tools"
+
+const log = logger.withTag("composio-path")
+
+/**
+ * Maximum tool call iterations per request.
+ * Prevents runaway agents. 10 is generous for any realistic task.
+ */
+const MAX_TOOL_CALLS = 10
+
+type RawTool = {
+  name: string
+  invoke: (input: unknown, options?: unknown) => Promise<unknown>
+  [key: string]: unknown
+}
+
+/**
+ * Safety-net: reject any COMPOSIO_* meta-tools that may slip through.
+ */
+function filterOutMetaTools(tools: DynamicStructuredTool[]): DynamicStructuredTool[] {
+  return tools.filter((t) => !t.name.startsWith("COMPOSIO_"))
+}
 
 export async function executeComposioPath(params: {
   userId: string
   connectedProviders: IntegrationType[]
+  selectedProviders: IntegrationType[]
   baseMessages: BaseMessage[]
-  lastUserContent: string
   model: ChatOpenAI
   emitter: ChecklistEmitter
 }): Promise<string | null> {
-  const {
-    userId,
-    connectedProviders,
-    baseMessages,
-    lastUserContent,
-    model,
-    emitter,
-  } = params
-
-  const { providers: selectedProviders, intent } =
-    await runComposioPlanner({
-      query: lastUserContent,
-      connectedProviders,
-      model,
-    })
-
-  emitter.addStage("planning", intent, { intent })
+  const { userId, connectedProviders, selectedProviders, baseMessages, model, emitter } = params
 
   try {
-    const session = await createComposioSession({
+    const sessionProviders = selectedProviders.length > 0 ? selectedProviders : connectedProviders
+
+    const rawTools = await getComposioTools({
       userId,
-      connectedProviders,
+      connectedProviders: sessionProviders,
     })
 
-    const composioTools = await session.tools()
-
-    if (!Array.isArray(composioTools) || composioTools.length === 0) {
-      emitter.addStage(
-        "planning",
-        "No integrations available, generating response..."
-      )
+    if (!Array.isArray(rawTools) || rawTools.length === 0) {
+      log.warn("No Composio tools returned", { providers: sessionProviders })
       return null
     }
 
-    const filteredTools = filterToolsByProviders(
-      composioTools as LangChainTool[],
-      selectedProviders.length > 0
-        ? selectedProviders
-        : connectedProviders
+    // Safety-net filter in case any COMPOSIO_* meta-tools slip through
+    const tools = filterOutMetaTools(rawTools)
+
+    if (tools.length === 0) {
+      log.warn("No business tools after filtering", {
+        raw: rawTools.length,
+        providers: sessionProviders,
+        rawTools: rawTools,
+      })
+      return null
+    }
+
+    // ─── TOOL CALLING LOOP ───────────────────────────────────────────────────
+    // Use model.bindTools() + manual loop instead of createAgent().
+    // Benefits:
+    //   - We control the iteration count (MAX_TOOL_CALLS)
+    //   - We emit events on every tool call
+    //   - No LangGraph ReAct recursion stack
+    //   - Tool errors are caught gracefully per-tool
+    const modelWithTools = model.bindTools(
+      tools 
     )
 
-    const toolsToUse =
-      filteredTools.length > 0 ? filteredTools : (composioTools as LangChainTool[])
+    const toolsByName = new Map(tools.map((t) => [t.name, t]))
 
-    const response = await executeAgentPath({
-      tools: toolsToUse as AgentTools,
-      baseMessages,
-      model,
-      onToolCall: emitter.onToolStep,
-    })
+    const loopMessages: BaseMessage[] = [
+      new SystemMessage(SYSTEM_MESSAGE),
+      ...baseMessages,
+    ]
 
-    return response || ""
+    let toolCallCount = 0
+
+    while (toolCallCount < MAX_TOOL_CALLS) {
+      const response = await modelWithTools.invoke(loopMessages)
+      loopMessages.push(response)
+
+      const aiMsg = response as AIMessage
+      const toolCalls = aiMsg.tool_calls
+
+      // No tool calls → model has finished reasoning, break to synthesis
+      if (!toolCalls?.length) break
+
+      for (const toolCall of toolCalls) {
+        if (toolCallCount >= MAX_TOOL_CALLS) {
+          log.warn("Max tool calls reached, stopping loop", { toolCallCount })
+          break
+        }
+
+        emitter.onToolStep(toolCall.name, "start")
+
+        const tool = toolsByName.get(toolCall.name)
+        let result: unknown
+
+        if (!tool) {
+          log.warn("Tool not found", { tool: toolCall.name })
+          result = { error: `Tool "${toolCall.name}" is not available` }
+        } else {
+          try {
+            result = await tool.invoke(
+              toolCall.args as Record<string, unknown>
+            )
+          } catch (err) {
+            log.error("Tool execution failed", { tool: toolCall.name, err })
+            result = { error: `Tool execution failed: ${String(err)}` }
+          }
+        }
+
+        emitter.onToolStep(toolCall.name, "end")
+        toolCallCount++
+
+        loopMessages.push(
+          new ToolMessage({
+            content:
+              typeof result === "string" ? result : JSON.stringify(result),
+            tool_call_id: toolCall.id ?? `call_${toolCallCount}`,
+          })
+        )
+      }
+    }
+
+    // ─── STREAMING SYNTHESIS ─────────────────────────────────────────────────
+    // Run a final, tools-free pass to synthesize all accumulated tool results
+    // into a coherent response. We stream each token so the UI updates live.
+    emitter.addStage("synthesizing", "Synthesizing results...")
+
+    const stream = await model.stream(loopMessages)
+    let content = ""
+
+    for await (const chunk of stream) {
+      const token = typeof chunk.content === "string" ? chunk.content : ""
+      content += token
+      if (token) emitter.emitToken(token)
+    }
+
+    emitter.flushTokens()
+    log.info("Composio path completed", { toolCallCount, contentLength: content.length })
+    return content || ""
   } catch (err) {
-    emitter.addStage(
-      "planning",
-      "Integrations unavailable, generating response..."
-    )
+    log.error("Composio path failed", err)
     return null
   }
 }

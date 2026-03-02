@@ -8,6 +8,11 @@ import {
   parseComposioCallbackParams,
   VALID_COMPOSIO_PROVIDERS,
 } from "@/(server)/lib/composio"
+import {
+  loadCheckpoint,
+  deleteCheckpoint,
+} from "@/(server)/lib/chat/checkpoint"
+import { processConversationMessage } from "@/(server)/lib/message-processor"
 
 const log = logger.withTag("api/integrations/callback")
 
@@ -46,10 +51,9 @@ export async function GET(req: Request) {
       providerParam && VALID_COMPOSIO_PROVIDERS.includes(providerParam as IntegrationType)
         ? (providerParam as IntegrationType)
         : null
+
     if (!provider) {
-      log.warn("Callback rejected: missing or invalid provider", {
-        providerParam,
-      })
+      log.warn("Callback rejected: missing or invalid provider", { providerParam })
       return redirect(url, "error")
     }
 
@@ -79,6 +83,28 @@ export async function GET(req: Request) {
     })
 
     log.success("Integration connected", { userId, provider })
+
+    // ─── Resume pending conversation if a checkpoint exists ──────────────────
+    const conversationId = url.searchParams.get("conversationId")
+    if (conversationId) {
+      const checkpoint = await loadCheckpoint(conversationId)
+      if (checkpoint && checkpoint.userId === userId) {
+        log.info("Resuming conversation from checkpoint", { conversationId })
+        await deleteCheckpoint(conversationId)
+
+        // Process the original message now that the provider is connected.
+        // Fire-and-forget — the user is already redirected to the conversation page.
+        void processConversationMessage({
+          userId,
+          conversationId: checkpoint.conversationId,
+          content: checkpoint.pendingMessage,
+          origin: url.origin,
+        }).catch((err) => {
+          log.error("Failed to resume conversation after OAuth", err)
+        })
+      }
+    }
+
     return redirect(url, "connected")
   } catch (err) {
     log.error("Integration callback failed", err)

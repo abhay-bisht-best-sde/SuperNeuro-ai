@@ -10,6 +10,7 @@ import {
   type ConversationEvent,
   type ConversationGraphStageEvent,
   type ConversationMessageEvent,
+  type ConversationRequiresConnectionEvent,
 } from "@/libs/ably-types"
 
 function getAuthUrl(): string {
@@ -41,6 +42,11 @@ export interface UseAblyChannelsOptions {
     conversationId: string,
     message: ConversationMessageEvent["message"]
   ) => void
+  onTokenStream: (conversationId: string, token: string) => void
+  onRequiresConnection: (
+    conversationId: string,
+    event: ConversationRequiresConnectionEvent
+  ) => void
 }
 
 export function useAblyChannels(options: UseAblyChannelsOptions): void {
@@ -50,14 +56,21 @@ export function useAblyChannels(options: UseAblyChannelsOptions): void {
     onThinking,
     onGraphStage,
     onMessage,
+    onTokenStream,
+    onRequiresConnection,
   } = options
 
   const onThinkingRef = useRef(onThinking)
   const onGraphStageRef = useRef(onGraphStage)
   const onMessageRef = useRef(onMessage)
+  const onTokenStreamRef = useRef(onTokenStream)
+  const onRequiresConnectionRef = useRef(onRequiresConnection)
+
   onThinkingRef.current = onThinking
   onGraphStageRef.current = onGraphStage
   onMessageRef.current = onMessage
+  onTokenStreamRef.current = onTokenStream
+  onRequiresConnectionRef.current = onRequiresConnection
 
   const conversationIdsKey = useMemo(
     () => [...conversationIds].sort().join(","),
@@ -78,12 +91,22 @@ export function useAblyChannels(options: UseAblyChannelsOptions): void {
         const event = message.data as ConversationEvent
         if (!event) return
 
-        if (event.type === ConversationEventType.THINKING) {
-          onThinkingRef.current(conversationId)
-        } else if (event.type === ConversationEventType.GRAPH_STAGE) {
-          onGraphStageRef.current(conversationId, event)
-        } else if (event.type === ConversationEventType.MESSAGE) {
-          onMessageRef.current(conversationId, event.message)
+        switch (event.type) {
+          case ConversationEventType.THINKING:
+            onThinkingRef.current(conversationId)
+            break
+          case ConversationEventType.GRAPH_STAGE:
+            onGraphStageRef.current(conversationId, event)
+            break
+          case ConversationEventType.MESSAGE:
+            onMessageRef.current(conversationId, event.message)
+            break
+          case ConversationEventType.TOKEN_STREAM:
+            onTokenStreamRef.current(conversationId, event.token)
+            break
+          case ConversationEventType.REQUIRES_CONNECTION:
+            onRequiresConnectionRef.current(conversationId, event)
+            break
         }
       }
 

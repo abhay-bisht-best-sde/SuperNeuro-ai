@@ -12,6 +12,8 @@ export {
   type ConversationGraphStageEvent,
   type ConversationMessageEvent,
   type ConversationThinkingEvent,
+  type ConversationTokenEvent,
+  type ConversationRequiresConnectionEvent,
   type GraphStage,
 } from "@/libs/ably-types"
 

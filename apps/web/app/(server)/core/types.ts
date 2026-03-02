@@ -1,7 +1,6 @@
 import type { IntegrationType } from "@repo/database"
 
-import type { ConversationGraphStageEvent } from "@/libs/ably-types"
-import type { API_TOOLS } from "./constants"
+import type { ConversationEvent } from "@/libs/ably-types"
 
 export interface ExecutionStep {
   stepId: string
@@ -25,31 +24,6 @@ export interface ToolExecutionResult {
   data?: unknown
   error?: string
   successful?: boolean
-}
-
-export type ApiToolName = (typeof API_TOOLS)[number]
-
-export type TavilySearchDepth =
-  | "basic"
-  | "advanced"
-  | "fast"
-  | "ultra-fast"
-
-export type TavilyTopic = "general" | "news" | "finance"
-
-export interface TavilySearchInput {
-  query: string
-  max_results?: number
-  search_depth?: TavilySearchDepth
-  topic?: TavilyTopic
-}
-
-export type FirecrawlFormat = "markdown" | "html"
-
-export interface FirecrawlScrapeInput {
-  url: string
-  formats?: FirecrawlFormat[]
-  onlyMainContent?: boolean
 }
 
 export interface ChatMessage {
@@ -77,17 +51,18 @@ export interface RagImageSource {
 
 export type RagSource = RagPdfSource | RagImageSource
 
-export interface ChatGraphResult {
-  content: string
-  ragSources?: RagSource[]
-}
+export type ChatGraphResult =
+  | { type: "message"; content: string; ragSources?: RagSource[] }
+  | { type: "requires_connection"; provider: IntegrationType }
 
 export interface ChatGraphInput {
   messages: ChatMessage[]
   userId?: string | null
   conversationSummary?: string | null
   connectedProviders?: IntegrationType[]
-  onEvent?: (event: ConversationGraphStageEvent) => void | Promise<void>
+  /** Origin URL (e.g. https://app.superneuro.ai) — required for OAuth callback URLs */
+  origin?: string
+  onEvent?: (event: ConversationEvent) => void | Promise<void>
 }
 
 export interface ModelResponse {

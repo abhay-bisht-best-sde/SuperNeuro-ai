@@ -4,8 +4,8 @@ import { dark } from "@clerk/themes"
 export default function SignUpPage() {
   return (
     <SignUp
-      afterSignUpUrl="/dashboard/integrations"
-      signInUrl="/sign-in"
+      afterSignOutUrl={"/"}
+      forceRedirectUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL}
       appearance={{
         baseTheme: dark,
         variables: {

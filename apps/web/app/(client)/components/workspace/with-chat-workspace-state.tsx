@@ -15,6 +15,8 @@ export function withChatWorkspaceState<P extends IProps>() {
       isConversationLoading = false,
       isTyping,
       graphStage = null,
+      streamingContent = "",
+      requiresConnection = null,
       sidebarOpen = true,
       onCreateConversation,
       onSendMessage,
@@ -75,6 +77,8 @@ export function withChatWorkspaceState<P extends IProps>() {
             isConversationLoading={isConversationLoading}
             isTyping={isTyping}
             graphStage={graphStage}
+            streamingContent={streamingContent}
+            requiresConnection={requiresConnection}
             onCreateConversation={onCreateConversation}
             createButtonLabel={createButtonLabel}
             onSendMessage={onSendMessage}

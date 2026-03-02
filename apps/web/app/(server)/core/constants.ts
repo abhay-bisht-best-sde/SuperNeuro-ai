@@ -18,46 +18,74 @@ export const MAX_RETRY_ATTEMPTS = 3
 export const CACHE_PREFIX = "conv:"
 export const CACHE_TTL_SECONDS = 300
 
-export const SYSTEM_MESSAGE = `
-You are SuperNeuro.ai, an intelligent workflow co-pilot.
-
-Your purpose is to help users automate, organize, retrieve, create, and execute tasks across connected tools such as Notion, Google Workspace (Docs, Sheets, Drive, Gmail, Calendar), Slack, and other integrated platforms.
-
-You are not a generic chatbot.
-You are an action-oriented productivity assistant.
-`
+export const SYSTEM_MESSAGE = `You are SuperNeuro.ai — an action-oriented workflow co-pilot. Help users automate and execute tasks across their connected tools (Google Workspace, Notion, Slack, YouTube, Reddit, Tavily, Firecrawl). Be concise, use tools proactively, and format results clearly with markdown.`
 
 export const SYSTEM_MESSAGE_OBJ = {
   role: MessageRole.SYSTEM.toLowerCase(),
   content: SYSTEM_MESSAGE,
 }
 
-export const TAVILY_WEB_SEARCH = "TAVILY_WEB_SEARCH"
-export const FIRECRAWL_SCRAPE_URL = "FIRECRAWL_SCRAPE_URL"
-export const API_TOOLS = [TAVILY_WEB_SEARCH, FIRECRAWL_SCRAPE_URL] as const
+/** Canonical Composio toolkit slugs — single source of truth for Composio API */
+export const COMPOSIO_TOOLKIT_SLUGS = [
+  "firecrawl",
+  "tavily",
+  "reddit",
+  "youtube",
+  "slack",
+  "notion",
+  "googledocs",
+  "googlesheets",
+  "googledrive",
+  "googlecalendar",
+  "gmail",
+] as const
+
+export type ComposioToolkitSlug = (typeof COMPOSIO_TOOLKIT_SLUGS)[number]
+
+/** Map our IntegrationType (DB/enum) to Composio toolkit slug (API) */
+export const INTEGRATION_TYPE_TO_COMPOSIO_SLUG: Record<
+  IntegrationType,
+  ComposioToolkitSlug
+> = {
+  GMAIL: "gmail",
+  GOOGLECALENDAR: "googlecalendar",
+  GOOGLEDRIVE: "googledrive",
+  GOOGLESHEETS: "googlesheets",
+  GOOGLEDOCS: "googledocs",
+  NOTION: "notion",
+  SLACK: "slack",
+  YOUTUBE: "youtube",
+  REDDIT: "reddit",
+  TAVILY: "tavily",
+  FIRECRAWL: "firecrawl",
+}
 
 export const APP_NAME_TO_INTEGRATION_TYPE: Record<string, IntegrationType> = {
   GMAIL: IntegrationType.GMAIL,
-  GOOGLE_CALENDAR: IntegrationType.GOOGLE_CALENDAR,
-  GOOGLE_DRIVE: IntegrationType.GOOGLE_DRIVE,
-  GOOGLE_SHEETS: IntegrationType.GOOGLE_SHEETS,
-  GOOGLE_DOCS: IntegrationType.GOOGLE_DOCS,
+  GOOGLECALENDAR: IntegrationType.GOOGLECALENDAR,
+  GOOGLEDRIVE: IntegrationType.GOOGLEDRIVE,
+  GOOGLESHEETS: IntegrationType.GOOGLESHEETS,
+  GOOGLEDOCS: IntegrationType.GOOGLEDOCS,
   NOTION: IntegrationType.NOTION,
   SLACK: IntegrationType.SLACK,
   YOUTUBE: IntegrationType.YOUTUBE,
   REDDIT: IntegrationType.REDDIT,
+  TAVILY: IntegrationType.TAVILY,
+  FIRECRAWL: IntegrationType.FIRECRAWL,
 }
 
 export const VALID_COMPOSIO_PROVIDERS = [
   "GMAIL",
-  "GOOGLE_CALENDAR",
-  "GOOGLE_DRIVE",
-  "GOOGLE_SHEETS",
-  "GOOGLE_DOCS",
+  "GOOGLECALENDAR",
+  "GOOGLEDRIVE",
+  "GOOGLESHEETS",
+  "GOOGLEDOCS",
   "NOTION",
   "SLACK",
   "YOUTUBE",
   "REDDIT",
+  "TAVILY",
+  "FIRECRAWL",
 ] as const satisfies readonly IntegrationType[]
 
 export function getComposioAuthConfigsForSession(): Partial<
@@ -65,14 +93,16 @@ export function getComposioAuthConfigsForSession(): Partial<
 > {
   return {
     GMAIL: env.COMPOSIO_AUTH_CONFIG_GMAIL,
-    GOOGLE_CALENDAR: env.COMPOSIO_AUTH_CONFIG_GOOGLE_CALENDAR,
-    GOOGLE_DRIVE: env.COMPOSIO_AUTH_CONFIG_GOOGLE_DRIVE,
-    GOOGLE_SHEETS: env.COMPOSIO_AUTH_CONFIG_GOOGLE_SHEETS,
-    GOOGLE_DOCS: env.COMPOSIO_AUTH_CONFIG_GOOGLE_DOCS,
+    GOOGLECALENDAR: env.COMPOSIO_AUTH_CONFIG_GOOGLECALENDAR,
+    GOOGLEDRIVE: env.COMPOSIO_AUTH_CONFIG_GOOGLEDRIVE,
+    GOOGLESHEETS: env.COMPOSIO_AUTH_CONFIG_GOOGLESHEETS,
+    GOOGLEDOCS: env.COMPOSIO_AUTH_CONFIG_GOOGLEDOCS,
     NOTION: env.COMPOSIO_AUTH_CONFIG_NOTION,
     SLACK: env.COMPOSIO_AUTH_CONFIG_SLACK,
     YOUTUBE: env.COMPOSIO_AUTH_CONFIG_YOUTUBE,
     REDDIT: env.COMPOSIO_AUTH_CONFIG_REDDIT,
+    TAVILY: env.COMPOSIO_AUTH_CONFIG_TAVILY,
+    FIRECRAWL: env.COMPOSIO_AUTH_CONFIG_FIRECRAWL,
   }
 }
 

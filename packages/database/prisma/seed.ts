@@ -2,16 +2,19 @@ import { PrismaClient, IntegrationType } from "@repo/database"
 
 const prisma = new PrismaClient()
 
+/** Order matches COMPOSIO_TOOLKIT_SLUGS (firecrawl → gmail) for consistency */
 const ALL_INTEGRATION_TYPES: IntegrationType[] = [
-  IntegrationType.GMAIL,
-  IntegrationType.GOOGLE_CALENDAR,
-  IntegrationType.GOOGLE_DRIVE,
-  IntegrationType.GOOGLE_SHEETS,
-  IntegrationType.NOTION,
-  IntegrationType.SLACK,
-  IntegrationType.GOOGLE_DOCS,
-  IntegrationType.YOUTUBE,
+  IntegrationType.FIRECRAWL,
+  IntegrationType.TAVILY,
   IntegrationType.REDDIT,
+  IntegrationType.YOUTUBE,
+  IntegrationType.SLACK,
+  IntegrationType.NOTION,
+  IntegrationType.GOOGLEDOCS,
+  IntegrationType.GOOGLESHEETS,
+  IntegrationType.GOOGLEDRIVE,
+  IntegrationType.GOOGLECALENDAR,
+  IntegrationType.GMAIL,
 ]
 
 async function main() {

@@ -12,7 +12,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/(client)/components/ui/input-group"
-import { PdfViewerModal } from "@/(client)/components/modal/pdf-viewer-modal"
+import { useResourceViewerStore } from "@/(client)/components/resource-viewer"
 import { StatusIndicator } from "./status-indicator"
 
 import type { KnowledgeBaseListItem } from "@repo/database/types"
@@ -35,9 +35,7 @@ export function KnowledgePanel(props: IProps) {
   const { knowledgeBases, onAddKnowledgeBase, onRetry } = props
   const [searchQuery, setSearchQuery] = useState("")
   const [debouncedQuery, setDebouncedQuery] = useState("")
-  const [pdfViewerKb, setPdfViewerKb] = useState<KnowledgeBaseListItem | null>(
-    null
-  )
+  const openPdfViewer = useResourceViewerStore((s) => s.openPdfViewer)
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(searchQuery), DEBOUNCE_MS)
@@ -101,11 +99,16 @@ export function KnowledgePanel(props: IProps) {
                 tabIndex={0}
                 initial={false}
                 animate={{ opacity: 1, y: 0 }}
-                onClick={() => setPdfViewerKb(kb)}
+                onClick={() =>
+                  openPdfViewer({
+                    r2Key: kb.key,
+                    fileName: kb.name,
+                  })
+                }
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault()
-                    setPdfViewerKb(kb)
+                    openPdfViewer({ r2Key: kb.key, fileName: kb.name })
                   }
                 }}
                 className={`flex cursor-pointer flex-col gap-1.5 px-4 py-3 text-left transition-colors hover:bg-sidebar-accent/50 ${
@@ -146,12 +149,6 @@ export function KnowledgePanel(props: IProps) {
           })}
         </div>
       </ScrollArea>
-      <PdfViewerModal
-        open={!!pdfViewerKb}
-        onOpenChange={(open) => !open && setPdfViewerKb(null)}
-        r2Key={pdfViewerKb?.key ?? null}
-        fileName={pdfViewerKb?.name ?? ""}
-      />
     </div>
   )
 }

@@ -52,30 +52,17 @@ export const CHAT_SUGGESTIONS = [
 export const FAVICON_BASE = "https://favicon.im"
 export const INTEGRATION_LOGOS: Record<string, string> = {
   GMAIL: "https://img.icons8.com/color/96/gmail.png",
-  GOOGLE_CALENDAR: "https://img.icons8.com/color/96/google-calendar.png",
-  GOOGLE_DRIVE: "https://img.icons8.com/color/96/google-drive.png",
-  GOOGLE_SHEETS: "https://img.icons8.com/color/96/google-sheets.png",
-  GOOGLE_DOCS: "https://img.icons8.com/color/96/google-docs.png",
+  GOOGLECALENDAR: "https://img.icons8.com/color/96/google-calendar.png",
+  GOOGLEDRIVE: "https://img.icons8.com/color/96/google-drive.png",
+  GOOGLESHEETS: "https://img.icons8.com/color/96/google-sheets.png",
+  GOOGLEDOCS: "https://img.icons8.com/color/96/google-docs.png",
   NOTION: `${FAVICON_BASE}/notion.so?larger=true`,
   SLACK: `${FAVICON_BASE}/slack.com?larger=true`,
   YOUTUBE: `${FAVICON_BASE}/youtube.com?larger=true`,
   REDDIT: `${FAVICON_BASE}/reddit.com?larger=true`,
+  TAVILY: `${FAVICON_BASE}/tavily.com?larger=true`,
+  FIRECRAWL: `${FAVICON_BASE}/firecrawl.dev?larger=true`,
 }
-
-export const DEFAULT_API_TOOLS = [
-  {
-    id: "tavily",
-    name: "Tavily",
-    description: "Search",
-    url: "https://www.tavily.com/",
-  },
-  {
-    id: "firecrawl",
-    name: "Firecrawl",
-    description: "Extract site data",
-    url: "https://www.firecrawl.dev/",
-  },
-] as const
 
 export const fadeUp = {
   initial: { opacity: 0, y: 24 },

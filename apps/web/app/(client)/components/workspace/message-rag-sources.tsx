@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { FileText, Loader2 } from "lucide-react"
 
 import { api } from "@/(client)/components/query-boundary/api-client"
+import { useResourceViewerStore } from "@/(client)/components/resource-viewer"
 import type { RagSource } from "@/libs/ably-types"
 
 interface IProps {
@@ -13,23 +14,6 @@ interface IProps {
 function useSignedUrl(key: string, type: "pdf" | "image", fetchOnMount = false) {
   const [url, setUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-
-  const fetchUrl = async () => {
-    if (url) return url
-    setLoading(true)
-    try {
-      const res = await api.get<{ url: string }>(
-        `/api/signed-url?key=${encodeURIComponent(key)}&type=${type}`
-      )
-      const signedUrl = res.data.url
-      setUrl(signedUrl)
-      return signedUrl
-    } catch {
-      return null
-    } finally {
-      setLoading(false)
-    }
-  }
 
   useEffect(() => {
     if (!fetchOnMount || !key) return
@@ -42,24 +26,23 @@ function useSignedUrl(key: string, type: "pdf" | "image", fetchOnMount = false) 
       .finally(() => setLoading(false))
   }, [key, type, fetchOnMount])
 
-  return { url, loading, fetchUrl }
+  return { url, loading }
 }
 
-function PdfSourceItem(props: {
-  source: Extract<RagSource, { type: "pdf" }>
-}) {
-  const { source } = props
-  const { url, loading, fetchUrl } = useSignedUrl(source.r2Key, "pdf")
+type PdfSource = Extract<RagSource, { type: "pdf" }>
+type ImageSource = Extract<RagSource, { type: "image" }>
 
-  const handleClick = async () => {
-    const signedUrl = await fetchUrl()
-    if (signedUrl) window.open(signedUrl, "_blank", "noopener,noreferrer")
-  }
+function PdfSourceItem(props: {
+  source: PdfSource
+  onClick: () => void
+}) {
+  const { source, onClick } = props
+  const { loading } = useSignedUrl(source.r2Key, "pdf")
 
   return (
     <button
       type="button"
-      onClick={handleClick}
+      onClick={onClick}
       disabled={loading}
       className="flex w-full items-center gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2.5 text-left transition-colors hover:bg-muted/50 disabled:opacity-50"
     >
@@ -81,19 +64,16 @@ function PdfSourceItem(props: {
 }
 
 function ImageSourceItem(props: {
-  source: Extract<RagSource, { type: "image" }>
+  source: ImageSource
+  onClick: () => void
 }) {
-  const { source } = props
+  const { source, onClick } = props
   const { url, loading } = useSignedUrl(source.r2Key, "image", true)
-
-  const handleClick = () => {
-    if (url) window.open(url, "_blank", "noopener,noreferrer")
-  }
 
   return (
     <button
       type="button"
-      onClick={handleClick}
+      onClick={onClick}
       disabled={loading}
       className="group relative aspect-video w-full overflow-hidden rounded-lg border border-border bg-muted/30 transition-colors hover:bg-muted/50 disabled:opacity-50"
     >
@@ -119,16 +99,18 @@ function ImageSourceItem(props: {
 
 export function MessageRagSources(props: IProps) {
   const { sources } = props
+  const openPdfViewer = useResourceViewerStore((s) => s.openPdfViewer)
+  const openImageViewer = useResourceViewerStore((s) => s.openImageViewer)
 
-  const pdfSources = sources.filter((s): s is Extract<RagSource, { type: "pdf" }> =>
-    s.type === "pdf"
+  const pdfSources = sources.filter(
+    (s): s is PdfSource => s.type === "pdf"
   )
   const imageSources = sources.filter(
-    (s): s is Extract<RagSource, { type: "image" }> => s.type === "image"
+    (s): s is ImageSource => s.type === "image"
   )
 
   const uniquePdfs = Array.from(
-    new Map(pdfSources.map((s) => [s.r2Key, s])).values()
+    new Map(pdfSources.map((s) => [`${s.r2Key}-${s.page}`, s])).values()
   )
   const uniqueImages = Array.from(
     new Map(imageSources.map((s) => [s.r2Key, s])).values()
@@ -145,7 +127,17 @@ export function MessageRagSources(props: IProps) {
           </p>
           <div className="flex flex-col gap-2">
             {uniquePdfs.map((s) => (
-              <PdfSourceItem key={`${s.r2Key}-${s.page}`} source={s} />
+              <PdfSourceItem
+                key={`${s.r2Key}-${s.page}`}
+                source={s}
+                onClick={() =>
+                  openPdfViewer({
+                    r2Key: s.r2Key,
+                    fileName: s.fileName,
+                    page: s.page,
+                  })
+                }
+              />
             ))}
           </div>
         </div>
@@ -157,7 +149,17 @@ export function MessageRagSources(props: IProps) {
           </p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {uniqueImages.map((s) => (
-              <ImageSourceItem key={s.r2Key} source={s} />
+              <ImageSourceItem
+                key={s.r2Key}
+                source={s}
+                onClick={() =>
+                  openImageViewer({
+                    r2Key: s.r2Key,
+                    fileName: s.fileName,
+                    alt: s.textSummary,
+                  })
+                }
+              />
             ))}
           </div>
         </div>

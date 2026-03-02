@@ -9,7 +9,10 @@ import { SidebarTogglePanel } from "./sidebar-toggle-panel"
 import { useRetryKnowledgeBase } from "@/(client)/components/query-boundary"
 import type { SidebarSection } from "@/(client)/libs/types"
 import type { ConversationWithMessages } from "@/(client)/components/query-boundary"
-import type { ConversationGraphStageEvent } from "@/libs/ably-types"
+import type {
+  ConversationGraphStageEvent,
+  ConversationRequiresConnectionEvent,
+} from "@/libs/ably-types"
 
 interface IProps {
   activeSection: SidebarSection
@@ -19,6 +22,8 @@ interface IProps {
   isConversationLoading?: boolean
   isTyping: boolean
   graphStage: ConversationGraphStageEvent | null
+  streamingContent?: string
+  requiresConnection?: ConversationRequiresConnectionEvent | null
   onSelectConversation: (id: string) => void
   onCreateConversation: () => void
   onConversationCreated: (id: string) => void
@@ -35,6 +40,8 @@ function MainDashboardContentInner(props: IProps) {
     isConversationLoading = false,
     isTyping,
     graphStage,
+    streamingContent,
+    requiresConnection,
     onSelectConversation,
     onCreateConversation,
     onConversationCreated,
@@ -67,6 +74,8 @@ function MainDashboardContentInner(props: IProps) {
             isConversationLoading={isConversationLoading}
             isTyping={isTyping}
             graphStage={graphStage}
+            streamingContent={streamingContent}
+            requiresConnection={requiresConnection}
             sidebarOpen={sidebarOpen}
             onCreateConversation={onCreateConversation}
             onSendMessage={onSendMessage}

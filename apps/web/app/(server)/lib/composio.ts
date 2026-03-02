@@ -9,24 +9,16 @@ import { IntegrationType } from "@repo/database"
 import {
   APP_NAME_TO_INTEGRATION_TYPE,
   getComposioAuthConfigsForSession,
+  INTEGRATION_TYPE_TO_COMPOSIO_SLUG,
 } from "@/(server)/core/constants"
+import type { ComposioToolkitSlug } from "@/(server)/core/constants"
+import { DynamicStructuredTool } from "@langchain/core/tools"
 
 export { APP_NAME_TO_INTEGRATION_TYPE }
 export { VALID_COMPOSIO_PROVIDERS } from "@/(server)/core/constants"
+export type { ComposioToolkitSlug } from "@/(server)/core/constants"
 
 const log = logger.withTag("composio")
-
-const INTEGRATION_TO_COMPOSIO_TOOLKIT: Record<IntegrationType, string> = {
-  GMAIL: "gmail",
-  GOOGLE_CALENDAR: "googlecalendar",
-  GOOGLE_DRIVE: "googledrive",
-  GOOGLE_SHEETS: "googlesheets",
-  GOOGLE_DOCS: "googledocs",
-  NOTION: "notion",
-  SLACK: "slack",
-  YOUTUBE: "youtube",
-  REDDIT: "reddit",
-}
 
 export function parseComposioAppName(
   appName: string | undefined
@@ -92,9 +84,9 @@ export async function initiateComposioConnection(params: {
 
 export function getComposioToolkitsForProviders(
   connectedProviders: IntegrationType[]
-): string[] {
+): ComposioToolkitSlug[] {
   const toolkits = connectedProviders
-    .map((p) => INTEGRATION_TO_COMPOSIO_TOOLKIT[p])
+    .map((p) => INTEGRATION_TYPE_TO_COMPOSIO_SLUG[p])
     .filter(Boolean)
   return [...new Set(toolkits)]
 }
@@ -114,42 +106,35 @@ function getComposioCore(): ComposioCore {
   return composioCoreInstance
 }
 
-export async function createComposioSession(params: {
+export async function getComposioTools(params: {
   userId: string
   connectedProviders: IntegrationType[]
-}) {
+}) : Promise<DynamicStructuredTool[]> {
   const { userId, connectedProviders } = params
 
-  log.info("Creating Composio session", { userId, connectedProviders })
+  log.info("Fetching Composio tools", { userId, connectedProviders })
   const composio = getComposioCore()
   const toolkits = getComposioToolkitsForProviders(connectedProviders)
-  const rawAuthConfigs = getComposioAuthConfigsForSession()
 
-  log.debug("Composio session config", {
-    toolkits,
-    authConfigsCount: Object.values(rawAuthConfigs).filter(Boolean).length,
+  if (toolkits.length === 0) {
+    log.warn("No toolkits mapped for providers", { connectedProviders })
+    return []
+  }
+
+  log.debug("Requesting tools for toolkits", { toolkits })
+
+  const toolArrays = await Promise.all(
+    toolkits.map((toolkit) =>
+      composio.tools.get(userId, { toolkits: [toolkit], limit: 5 })
+    )
+  )
+
+  const flatTools = toolArrays.flat() as unknown as DynamicStructuredTool[]
+
+  log.success("Composio tools fetched", {
+    toolkitCount: toolkits.length,
+    toolCount: flatTools.length,
   })
 
-  const sessionConfig: { toolkits?: string[]; authConfigs?: Record<string, string> } = {}
-  if (toolkits.length > 0) {
-    sessionConfig.toolkits = toolkits
-  }
-  const authConfigs: Record<string, string> = {}
-  for (const provider of connectedProviders) {
-    const configId = rawAuthConfigs[provider]
-    const toolkitSlug = INTEGRATION_TO_COMPOSIO_TOOLKIT[provider]
-    if (configId && toolkitSlug && toolkits.includes(toolkitSlug)) {
-      authConfigs[toolkitSlug] = configId
-    }
-  }
-  if (Object.keys(authConfigs).length > 0) {
-    sessionConfig.authConfigs = authConfigs
-  }
-
-  const session = await composio.create(userId, sessionConfig)
-  log.success("Composio session created", {
-    toolkitsCount: toolkits.length,
-    authConfigsCount: Object.keys(authConfigs).length,
-  })
-  return session
+  return flatTools
 }

@@ -33,6 +33,8 @@ export function ChatWorkspaceContent(props: IProps) {
     hasConversations = false,
     isTyping,
     graphStage = null,
+    streamingContent = "",
+    requiresConnection = null,
     inputValue,
     inputRef,
     onInputChange,
@@ -75,6 +77,8 @@ export function ChatWorkspaceContent(props: IProps) {
           conversation={conversation}
           isTyping={isTyping}
           graphStage={graphStage}
+          streamingContent={streamingContent}
+          requiresConnection={requiresConnection}
           inputValue={inputValue}
           onInputChange={onInputChange}
           onKeyDown={onKeyDown}

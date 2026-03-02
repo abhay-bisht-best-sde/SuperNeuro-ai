@@ -6,13 +6,12 @@ import type { ChecklistEmitter } from "../checklist-emitter"
 import { executeDirectLlm } from "./agent-executor"
 import { retrieveFromKnowledgeBase } from "@/(server)/lib/rag/retrieval"
 import type { ChatGraphResult, RagSource } from "@/(server)/core/types"
+import {
+  RAG_CONTEXT_PREFIX,
+  buildRagSystemMessage,
+} from "../prompts/rag-prompts"
 
 const log = logger.withTag("rag-path")
-
-const RAG_CONTEXT_PREFIX = `Use the following context from the user's uploaded documents and images to answer their question. If the context doesn't contain relevant information, say so and answer from general knowledge.
-
-Context:
-`
 
 export async function executeRagPath(params: {
   baseMessages: BaseMessage[]
@@ -52,16 +51,20 @@ export async function executeRagPath(params: {
   emitter.addStage("direct_llm", "Generating response...")
 
   const systemWithContext = contextToInject
-    ? `You are SuperNeuro.ai, an intelligent workflow co-pilot. Your purpose is to help users with their documents and knowledge base.
-
-${contextToInject}`
+    ? buildRagSystemMessage(contextToInject)
     : undefined
 
   const content = await executeDirectLlm({
     baseMessages,
     model,
     systemMessage: systemWithContext,
+    emitToken: emitter.emitToken,
+    flushTokens: emitter.flushTokens,
   })
 
-  return { content, ragSources: ragSources.length > 0 ? ragSources : undefined }
+  return {
+    type: "message",
+    content,
+    ragSources: ragSources.length > 0 ? ragSources : undefined,
+  }
 }

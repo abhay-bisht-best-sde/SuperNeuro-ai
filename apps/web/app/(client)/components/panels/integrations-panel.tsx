@@ -4,7 +4,6 @@ import { useCallback, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import axios from "axios"
 import { motion } from "framer-motion"
-import { ExternalLink } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/(client)/components/ui/button"
@@ -20,8 +19,6 @@ interface IProps {
 
 
 import {
-  DEFAULT_API_TOOLS,
-  FAVICON_BASE,
   INTEGRATION_LOGOS,
 } from "@/(client)/libs/constants"
 
@@ -76,52 +73,6 @@ export function IntegrationsPanel(props: IProps) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex flex-col gap-4 p-3">
-        <section>
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Default tools
-          </h3>
-          <p className="mb-2 text-xs text-muted-foreground">
-            Always enabled. Cannot be disabled.
-          </p>
-          <div className="flex flex-col gap-2">
-            {DEFAULT_API_TOOLS.map((tool) => (
-              <motion.div
-                key={tool.id}
-                initial={false}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5"
-              >
-                <div
-                  className={`flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden bg-muted ${tool.id === "firecrawl" ? "rounded-full" : "rounded-lg"}`}
-                >
-                  <IntegrationLogo
-                    src={`${FAVICON_BASE}/${tool.id === "tavily" ? "tavily.com" : "firecrawl.dev"}?larger=true`}
-                    alt={tool.name}
-                    fallback={tool.name.charAt(0)}
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <span className="text-sm font-medium text-foreground">
-                    {tool.name}
-                  </span>
-                  <span className="ml-1.5 text-xs text-muted-foreground">
-                    — {tool.description}
-                  </span>
-                </div>
-                <a
-                  href={tool.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="shrink-0 text-muted-foreground hover:text-foreground"
-                  aria-label={`Open ${tool.name}`}
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
         <section>
           <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Integrations

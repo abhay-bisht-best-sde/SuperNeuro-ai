@@ -2,6 +2,8 @@ export enum ConversationEventType {
   THINKING = "thinking",
   MESSAGE = "message",
   GRAPH_STAGE = "graph_stage",
+  TOKEN_STREAM = "token_stream",
+  REQUIRES_CONNECTION = "requires_connection",
 }
 
 export interface ConversationThinkingEvent {
@@ -48,8 +50,6 @@ export type GraphStage =
   | "tool_executed"
   | "tool_step"
   | "synthesizing"
-  | "tavily"
-  | "firecrawl"
   | "composio"
 
 export type StepStatus = "pending" | "in_progress" | "completed"
@@ -83,10 +83,25 @@ export interface ConversationGraphStageEvent {
   }
 }
 
+/** Streamed text token — emitted during LLM synthesis for progressive rendering */
+export interface ConversationTokenEvent {
+  type: ConversationEventType.TOKEN_STREAM
+  token: string
+}
+
+/** Emitted when a required provider is not connected — client shows Connect button */
+export interface ConversationRequiresConnectionEvent {
+  type: ConversationEventType.REQUIRES_CONNECTION
+  provider: string
+  connectUrl: string
+}
+
 export type ConversationEvent =
   | ConversationThinkingEvent
   | ConversationMessageEvent
   | ConversationGraphStageEvent
+  | ConversationTokenEvent
+  | ConversationRequiresConnectionEvent
 
 export function getConversationChannelName(
   userId: string,

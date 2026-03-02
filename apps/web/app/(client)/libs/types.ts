@@ -1,5 +1,8 @@
 import type { Prisma } from "@repo/database"
-import type { ConversationGraphStageEvent } from "@/libs/ably-types"
+import type {
+  ConversationGraphStageEvent,
+  ConversationRequiresConnectionEvent,
+} from "@/libs/ably-types"
 
 export type SidebarSection = "workflows" | "rag" | "knowledge" | "integrations"
 
@@ -15,6 +18,10 @@ export interface ChatWorkspaceProps {
   isConversationLoading?: boolean
   isTyping: boolean
   graphStage?: ConversationGraphStageEvent | null
+  /** Accumulated streamed tokens before the final MESSAGE event arrives */
+  streamingContent?: string
+  /** Set when the AI needs a provider to be connected before it can continue */
+  requiresConnection?: ConversationRequiresConnectionEvent | null
   sidebarOpen?: boolean
   onCreateConversation?: () => void
   onSendMessage: (content: string) => void
