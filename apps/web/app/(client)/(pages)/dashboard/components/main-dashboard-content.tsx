@@ -71,6 +71,9 @@ function MainDashboardContentInner(props: IProps) {
             onCreateConversation={onCreateConversation}
             onSendMessage={onSendMessage}
             onSidebarToggle={() => setSidebarOpen((prev) => !prev)}
+            createButtonLabel={
+              activeSection === "rag" ? "New Intelligent Chat" : "New Workflow"
+            }
           />
         </SidebarTogglePanel>
       </div>

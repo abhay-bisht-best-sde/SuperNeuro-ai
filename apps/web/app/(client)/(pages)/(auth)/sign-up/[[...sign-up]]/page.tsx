@@ -4,7 +4,7 @@ import { dark } from "@clerk/themes"
 export default function SignUpPage() {
   return (
     <SignUp
-      afterSignUpUrl="/dashboard"
+      afterSignUpUrl="/dashboard/integrations"
       signInUrl="/sign-in"
       appearance={{
         baseTheme: dark,

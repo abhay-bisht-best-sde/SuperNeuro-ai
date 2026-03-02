@@ -110,11 +110,17 @@ model KnowledgeBaseImages {
   @@index([indexingStatus])
 }
 
+enum ConversationType {
+  WORKFLOW
+  RAG
+}
+
 model Conversation {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   userId String
   title String
+  type ConversationType @default(WORKFLOW)
 
   messages Message[]
 
@@ -122,6 +128,7 @@ model Conversation {
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+  @@index([userId, type])
 }
 
 enum MessageRole {

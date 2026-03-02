@@ -19,6 +19,7 @@ export function withChatWorkspaceState<P extends IProps>() {
       onCreateConversation,
       onSendMessage,
       onSidebarToggle,
+      createButtonLabel,
     } = props
 
     const [inputValue, setInputValue] = useState("")
@@ -75,6 +76,7 @@ export function withChatWorkspaceState<P extends IProps>() {
             isTyping={isTyping}
             graphStage={graphStage}
             onCreateConversation={onCreateConversation}
+            createButtonLabel={createButtonLabel}
             onSendMessage={onSendMessage}
             onSidebarToggle={onSidebarToggle}
             inputValue={inputValue}

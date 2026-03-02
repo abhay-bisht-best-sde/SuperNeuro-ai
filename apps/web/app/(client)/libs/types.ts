@@ -1,7 +1,7 @@
 import type { Prisma } from "@repo/database"
 import type { ConversationGraphStageEvent } from "@/libs/ably-types"
 
-export type SidebarSection = "conversations" | "knowledge" | "integrations"
+export type SidebarSection = "workflows" | "rag" | "knowledge" | "integrations"
 
 export type ConversationListItem = Prisma.ConversationGetPayload<true>
 
@@ -19,6 +19,7 @@ export interface ChatWorkspaceProps {
   onCreateConversation?: () => void
   onSendMessage: (content: string) => void
   onSidebarToggle?: () => void
+  createButtonLabel?: string
 }
 
 export type ChatWorkspaceView =

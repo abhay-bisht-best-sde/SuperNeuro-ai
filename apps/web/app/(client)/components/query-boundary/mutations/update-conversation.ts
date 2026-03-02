@@ -1,7 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { api } from "../api-client"
-import { FETCH_CONVERSATIONS_KEYS } from "../queries/conversations"
+import {
+  FETCH_CONVERSATIONS_KEYS,
+  FETCH_WORKFLOWS_KEYS,
+  FETCH_RAG_CONVERSATIONS_KEYS,
+} from "../queries/conversations"
 import { FETCH_CONVERSATION_KEYS } from "../queries/conversation"
 
 export function useUpdateConversation() {
@@ -20,6 +24,8 @@ export function useUpdateConversation() {
     onSuccess: async (_, variables) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: FETCH_CONVERSATIONS_KEYS }),
+        queryClient.invalidateQueries({ queryKey: FETCH_WORKFLOWS_KEYS }),
+        queryClient.invalidateQueries({ queryKey: FETCH_RAG_CONVERSATIONS_KEYS }),
         queryClient.invalidateQueries({
           queryKey: FETCH_CONVERSATION_KEYS(variables.id),
         }),

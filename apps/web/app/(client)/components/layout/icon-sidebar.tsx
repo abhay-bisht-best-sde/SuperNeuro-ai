@@ -8,6 +8,7 @@ import {
   Plug,
   PanelLeftClose,
   PanelLeft,
+  FileSearch,
 } from "lucide-react"
 import { Button, buttonVariants } from "@/(client)/components/ui/button"
 import {
@@ -26,7 +27,8 @@ const navItems: {
   section: SidebarSection
   href: string
 }[] = [
-  { icon: MessageSquare, label: "Conversations", section: "conversations", href: "/dashboard" },
+  { icon: MessageSquare, label: "Workflows", section: "workflows", href: "/dashboard" },
+  { icon: FileSearch, label: "Intelligent Chat", section: "rag", href: "/dashboard/documents" },
   { icon: Database, label: "Knowledge Base", section: "knowledge", href: "/dashboard/knowledge" },
   { icon: Plug, label: "Integrations", section: "integrations", href: "/dashboard/integrations" },
 ]
@@ -34,7 +36,8 @@ const navItems: {
 function pathnameToSection(pathname: string): SidebarSection {
   if (pathname === "/dashboard/integrations") return "integrations"
   if (pathname === "/dashboard/knowledge") return "knowledge"
-  return "conversations"
+  if (pathname === "/dashboard/documents") return "rag"
+  return "workflows"
 }
 
 export function IconSidebar() {

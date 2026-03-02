@@ -1,18 +1,18 @@
 import { logger } from "@/core/logger"
 
-import type { ChatGraphInput } from "@/(server)/core/types"
-import { getChatModel } from "./model"
+import type { ChatGraphInput, ChatGraphResult } from "@/(server)/core/types"
 import { createChecklistEmitter } from "./checklist-emitter"
-import { runRouter } from "./router"
+import { runRouter } from "./task_router"
 import { toBaseMessages, resolveCapabilities } from "./utils"
 import { executeTavilyPath } from "./paths/tavily-path"
 import { executeFirecrawlPath } from "./paths/firecrawl-path"
 import { executeComposioPath } from "./paths/composio-path"
 import { executeDirectLlmPath } from "./paths/direct-llm-path"
+import { getChatModel } from "./model"
 
 const log = logger.withTag("chat-graph")
 
-export async function runChatGraph(input: ChatGraphInput): Promise<string> {
+export async function runChatGraph(input: ChatGraphInput): Promise<ChatGraphResult> {
   const { messages, userId, connectedProviders = [], onEvent } = input
 
   log.info("runChatGraph started", {
@@ -49,19 +49,21 @@ export async function runChatGraph(input: ChatGraphInput): Promise<string> {
   log.info("Router: selected route", { route, availableTools })
 
   if (route === "tavily" && hasTavily) {
-    return executeTavilyPath({
+    const content = await executeTavilyPath({
       baseMessages,
       model,
       emitter,
     })
+    return { content }
   }
 
   if (route === "firecrawl" && hasFirecrawl) {
-    return executeFirecrawlPath({
+    const content = await executeFirecrawlPath({
       baseMessages,
       model,
       emitter,
     })
+    return { content }
   }
 
   if (route === "composio" && hasComposio && userId) {
@@ -73,19 +75,23 @@ export async function runChatGraph(input: ChatGraphInput): Promise<string> {
       model,
       emitter,
     })
-    if (response !== null) return response
+    if (response !== null) return { content: response }
   }
 
-  const finalResponse = await executeDirectLlmPath({
+  const result = await executeDirectLlmPath({
     baseMessages,
     model,
     emitter,
+    userId: userId ?? null,
+    lastUserContent,
+    ragMode: false,
   })
 
   log.info("runChatGraph completed", {
     route,
-    responseLength: finalResponse.length,
+    responseLength: result.content.length,
+    hasRagSources: Boolean(result.ragSources?.length),
   })
 
-  return finalResponse
+  return result
 }

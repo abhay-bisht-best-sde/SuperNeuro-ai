@@ -17,7 +17,8 @@ const MemoizedIconSidebar = memo(IconSidebar)
 function pathnameToSection(pathname: string): SidebarSection {
   if (pathname === "/dashboard/integrations") return "integrations"
   if (pathname === "/dashboard/knowledge") return "knowledge"
-  return "conversations"
+  if (pathname === "/dashboard/documents") return "rag"
+  return "workflows"
 }
 
 export default function DashboardLayout() {
@@ -27,7 +28,9 @@ export default function DashboardLayout() {
     [pathname]
   )
 
-  const conversationsQuery = useConversationsQuery()
+  const conversationTypeFilter =
+    activeSection === "rag" ? "RAG" : activeSection === "workflows" ? "WORKFLOW" : undefined
+  const conversationsQuery = useConversationsQuery(conversationTypeFilter)
   const {
     activeConversationId,
     isConversationLoading,
@@ -39,7 +42,7 @@ export default function DashboardLayout() {
     handleConversationCreated,
     handleConversationDeleted,
     handleSendMessage,
-  } = useConversations()
+  } = useConversations(activeSection)
 
   const hasConversations = (conversationsQuery.data?.length ?? 0) > 0
 

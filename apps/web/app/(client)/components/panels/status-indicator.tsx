@@ -79,7 +79,10 @@ export function StatusIndicator(props: IProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={onRetry}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onRetry?.()
+                }}
                 className="h-6 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
               >
                 <RotateCcw className="h-3 w-3" />

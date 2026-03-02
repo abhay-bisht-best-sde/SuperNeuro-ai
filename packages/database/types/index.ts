@@ -53,15 +53,11 @@ export interface KnowledgeBaseImageItem {
 export interface KnowledgeBaseListItem {
   id: string;
   name: string;
+  key: string;
   sourceType: "document";
   lastUpdated?: Date;
   status: KnowledgeBaseIndexingStatus;
   progress?: number;
-  totalImages: number;
-  imagesIndexed: number;
-  imagesError: number;
-  imagesNotStarted: number;
-  images: KnowledgeBaseImageItem[];
   errorMessage?: string | null;
   processingAttempts?: number;
 }

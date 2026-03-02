@@ -30,6 +30,8 @@ export const SIDEBAR_WIDTH_ICON = "3rem"
 export const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 export const FETCH_CONVERSATIONS_KEYS = ["FETCH_CONVERSATIONS"] as const
+export const FETCH_WORKFLOWS_KEYS = ["FETCH_CONVERSATIONS", "WORKFLOW"] as const
+export const FETCH_RAG_CONVERSATIONS_KEYS = ["FETCH_CONVERSATIONS", "RAG"] as const
 export const FETCH_CONVERSATION_KEYS = (id: string | null) =>
   ["FETCH_CONVERSATION", id] as const
 export const FETCH_KNOWLEDGE_BASE_KEYS = ["FETCH_KNOWLEDGE_BASE"] as const

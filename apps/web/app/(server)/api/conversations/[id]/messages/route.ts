@@ -9,9 +9,9 @@ import {
   publishConversationEvent,
   type ConversationGraphStageEvent,
 } from "@/(server)/lib/ably"
-import { runChatGraph } from "@/(server)/lib/chat"
+import { runChatGraph, runRagGraph } from "@/(server)/lib/chat"
 import { INTERNAL_ERROR, SYSTEM_MESSAGE_OBJ } from "@/(server)/core/constants"
-import { MessageRole, type IntegrationType } from "@repo/database"
+import { MessageRole, ConversationType, type IntegrationType } from "@repo/database"
 
 const log = logger.withTag("api/conversations/[id]/messages")
 
@@ -98,30 +98,43 @@ export async function POST(
       }
     }
 
-    const response = await runChatGraph({
-      messages,
-      userId,
-      conversationSummary: null,
-      connectedProviders,
-      onEvent: onGraphEvent,
-    })
+    const conversationType = conversation.type ?? ConversationType.WORKFLOW
+
+    const result =
+      conversationType === ConversationType.RAG
+        ? await runRagGraph({
+            messages,
+            userId,
+            onEvent: onGraphEvent,
+          })
+        : await runChatGraph({
+            messages,
+            userId,
+            conversationSummary: null,
+            connectedProviders,
+            onEvent: onGraphEvent,
+          })
 
     const assistantMessage = await prisma.message.create({
       data: {
         conversationId,
         role: MessageRole.ASSISTANT,
-        content: response,
+        content: result.content,
+        executionStepsWithStatus: result.ragSources?.length
+          ? ({ ragSources: result.ragSources } as object)
+          : undefined,
       },
     })
 
     try {
       await publishConversationEvent(userId, conversationId, {
-        type:  ConversationEventType.MESSAGE,
+        type: ConversationEventType.MESSAGE,
         message: {
           id: assistantMessage.id,
-          role: 'assistant',
+          role: "assistant",
           content: assistantMessage.content,
           createdAt: assistantMessage.createdAt.toISOString(),
+          ragSources: result.ragSources,
         },
       })
     } catch (e) {

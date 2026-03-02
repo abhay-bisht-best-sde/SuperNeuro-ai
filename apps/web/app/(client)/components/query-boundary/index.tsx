@@ -17,13 +17,18 @@ export {
   useKnowledgeBase,
   FETCH_KNOWLEDGE_BASE_KEYS,
   useConversations,
+  useWorkflows,
+  useRagConversations,
   FETCH_CONVERSATIONS_KEYS,
+  FETCH_WORKFLOWS_KEYS,
+  FETCH_RAG_CONVERSATIONS_KEYS,
   useConversation,
   FETCH_CONVERSATION_KEYS,
 } from "./queries"
 export type {
   ConversationListItem,
   ConversationWithMessages,
+  ConversationTypeFilter,
 } from "./queries"
 export {
   useInsertUserConfig,

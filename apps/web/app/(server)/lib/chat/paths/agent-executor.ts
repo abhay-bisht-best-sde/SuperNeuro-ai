@@ -26,6 +26,7 @@ export async function executeAgentPath(params: {
     systemMessage = SYSTEM_MESSAGE,
     onToolCall,
   } = params
+  
   const toolsToUse =
     onToolCall && Array.isArray(tools)
       ? wrapToolsWithCallback(tools as LangChainTool[], onToolCall)
@@ -46,9 +47,10 @@ export async function executeAgentPath(params: {
 export async function executeDirectLlm(params: {
   baseMessages: BaseMessage[]
   model: ChatOpenAI
+  systemMessage?: string
 }): Promise<string> {
-  const { baseMessages, model } = params
-  const messages = [new SystemMessage(SYSTEM_MESSAGE), ...baseMessages]
+  const { baseMessages, model, systemMessage = SYSTEM_MESSAGE } = params
+  const messages = [new SystemMessage(systemMessage), ...baseMessages]
   const response = await model.invoke(messages)
   const content = (response as { content?: unknown }).content
   return typeof content === "string" ? content : String(content ?? "")

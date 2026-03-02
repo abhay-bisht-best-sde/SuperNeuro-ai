@@ -13,8 +13,13 @@ export {
 } from "./knowledge-base"
 export {
   useConversations,
+  useWorkflows,
+  useRagConversations,
   FETCH_CONVERSATIONS_KEYS,
+  FETCH_WORKFLOWS_KEYS,
+  FETCH_RAG_CONVERSATIONS_KEYS,
   type ConversationListItem,
+  type ConversationTypeFilter,
 } from "./conversations"
 export {
   useConversation,

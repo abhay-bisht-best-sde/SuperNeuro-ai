@@ -40,6 +40,7 @@ export function ChatWorkspaceContent(props: IProps) {
     onSubmit,
     onSuggestionClick,
     onCreateConversation,
+    createButtonLabel,
   } = props
 
   const viewType = getViewType(props)
@@ -52,6 +53,7 @@ export function ChatWorkspaceContent(props: IProps) {
         <CreateConversationEmptyState
           hasConversations={hasConversations}
           onCreateConversation={onCreateConversation}
+          createButtonLabel={createButtonLabel}
         />
       )
     case "welcome":

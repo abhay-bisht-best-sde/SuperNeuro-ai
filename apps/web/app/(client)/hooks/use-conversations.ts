@@ -10,6 +10,7 @@ import {
   useCreateConversation,
   useSendMessage,
 } from "@/(client)/components/query-boundary"
+import type { SidebarSection } from "@/(client)/libs/types"
 import { useAblyChannels } from "@/(client)/hooks/use-ably-channels"
 
 import type { Message } from "@repo/database"
@@ -17,22 +18,34 @@ import type { ConversationWithMessages } from "@/(client)/components/query-bound
 import {
   ConversationMessageEvent,
   type ConversationGraphStageEvent,
+  type RagSource,
 } from "@/libs/ably-types"
 import { FETCH_CONVERSATION_KEYS } from "@/(client)/components/query-boundary"
 
-type CachedMessage = Pick<Message, "id" | "role" | "content" | "createdAt">
+type CachedMessage = Pick<Message, "id" | "role" | "content" | "createdAt"> & {
+  executionStepsWithStatus?: { ragSources?: RagSource[] } | null
+  ragSources?: RagSource[]
+}
 
 type ConversationActivity = {
   isTyping: boolean
   graphStage: ConversationGraphStageEvent | null
 }
 
-export function useConversations() {
+export function useConversations(activeSection: SidebarSection = "workflows") {
   const { userId } = useAuth()
   const queryClient = useQueryClient()
   const [activeConversationId, setActiveConversationId] = useState<string | null>(
     null
   )
+  const prevSectionRef = useRef<SidebarSection>(activeSection)
+
+  useEffect(() => {
+    if (prevSectionRef.current !== activeSection) {
+      prevSectionRef.current = activeSection
+      setActiveConversationId(null)
+    }
+  }, [activeSection])
   const [pendingByConv, setPendingByConv] = useState<Map<string, CachedMessage[]>>(
     () => new Map()
   )
@@ -43,7 +56,8 @@ export function useConversations() {
   activeIdRef.current = activeConversationId
 
   const conversationQuery = useConversation(activeConversationId)
-  const createConversation = useCreateConversation()
+  const createType = activeSection === "rag" ? "RAG" : "WORKFLOW"
+  const createConversation = useCreateConversation(createType)
   const sendMessage = useSendMessage()
 
   const data = conversationQuery.data
@@ -115,6 +129,7 @@ export function useConversations() {
           role: "ASSISTANT",
           content: msg.content,
           createdAt: new Date(msg.createdAt),
+          ragSources: msg.ragSources,
         }
         setPendingByConv((prev) => {
           const next = new Map(prev)

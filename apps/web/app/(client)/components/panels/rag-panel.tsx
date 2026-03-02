@@ -10,7 +10,7 @@ import { ScrollArea } from "@/(client)/components/ui/scroll-area"
 import { formatConversationTimestamp } from "@/(client)/libs/date-utils"
 import { cn } from "@/(client)/libs/utils"
 import {
-  useConversations,
+  useRagConversations,
   useCreateConversation,
   useDeleteConversation,
   QueryBoundary,
@@ -32,7 +32,7 @@ interface IInnerProps extends IProps {
   deleteConversation: ReturnType<typeof useDeleteConversation>
 }
 
-function ConversationsPanelInner(props: IInnerProps) {
+function RagPanelInner(props: IInnerProps) {
   const {
     activeConversationId,
     onSelectConversation,
@@ -49,7 +49,7 @@ function ConversationsPanelInner(props: IInnerProps) {
     title: string
   } | null>(null)
 
-  const handleNewConversation = () => {
+  const handleNewRagChat = () => {
     createConversation.mutate(undefined, {
       onSuccess: (data: { id: string }) => {
         onConversationCreated(data.id)
@@ -76,16 +76,14 @@ function ConversationsPanelInner(props: IInnerProps) {
       <div className="flex h-full flex-col">
         <div className="p-3">
           <Button
-            onClick={handleNewConversation}
+            onClick={handleNewRagChat}
             disabled={createConversation.isPending}
             className="w-full justify-start gap-2 border-0 bg-primary/10 text-primary hover:bg-primary/20"
             variant="outline"
             size="sm"
           >
             <Plus className="h-4 w-4" />
-            <span>
-              New Conversation
-            </span>
+            <span>New Intelligent Chat</span>
           </Button>
         </div>
 
@@ -163,21 +161,23 @@ function ConversationsPanelInner(props: IInnerProps) {
   )
 }
 
-export function ConversationsPanel(props: IProps) {
-  const conversationsQuery = useConversations()
-  const createConversation = useCreateConversation()
+export function RagPanel(props: IProps) {
+  const conversationsQuery = useRagConversations()
+  const createConversation = useCreateConversation("RAG")
   const deleteConversation = useDeleteConversation()
 
   return (
     <QueryBoundary
       queries={[conversationsQuery] as const}
       mutations={[createConversation, deleteConversation] as readonly UseMutationResult<unknown, Error, unknown>[]}
-      loadingMessage="Loading conversations…"
+      loadingMessage="Loading intelligent chats…"
       showEmptyWhenNoData={false}
     >
-      <ConversationsPanelInner
+      <RagPanelInner
         {...props}
-        conversations={conversationsQuery.data ?? []}
+        conversations={(conversationsQuery.data ?? []).filter(
+          (c) => c.type === "RAG"
+        )}
         createConversation={createConversation}
         deleteConversation={deleteConversation}
       />

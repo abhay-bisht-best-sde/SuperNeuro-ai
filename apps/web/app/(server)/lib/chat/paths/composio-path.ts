@@ -4,7 +4,7 @@ import { createAgent } from "langchain"
 
 import { createComposioSession } from "@/(server)/lib/composio"
 import type { ChecklistEmitter } from "../checklist-emitter"
-import { runComposioPlanner } from "../router"
+import { runComposioPlanner } from "../task_router"
 import { filterToolsByProviders, type LangChainTool } from "../utils"
 import { executeAgentPath } from "./agent-executor"
 

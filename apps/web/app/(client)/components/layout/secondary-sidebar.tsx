@@ -2,14 +2,16 @@
 
 import { AnimatePresence, motion } from "framer-motion"
 
-import { ConversationsPanel } from "@/(client)/components/panels/conversations-panel"
+import { WorkflowsPanel } from "@/(client)/components/panels/workflows-panel"
+import { RagPanel } from "@/(client)/components/panels/rag-panel"
 import { KnowledgeSection } from "@/(client)/components/layout/knowledge-section"
 import { IntegrationsSection } from "@/(client)/components/layout/integrations-section"
 
 import type { SidebarSection } from "@/(client)/libs/types"
 
 const sectionTitles: Record<SidebarSection, string> = {
-  conversations: "Conversations",
+  workflows: "Workflows",
+  rag: "Intelligent Chat",
   knowledge: "Knowledge Base",
   integrations: "Integrations",
 }
@@ -63,10 +65,18 @@ export function SecondarySidebar(props: IProps) {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 12 }}
           transition={{ duration: 0.15 }}
-          className="flex-1 overflow-hidden"
+          className="min-h-0 flex-1 overflow-hidden"
         >
-          {activeSection === "conversations" && (
-            <ConversationsPanel
+          {activeSection === "workflows" && (
+            <WorkflowsPanel
+              activeConversationId={activeConversationId}
+              onSelectConversation={onSelectConversation}
+              onConversationCreated={onConversationCreated}
+              onConversationDeleted={onConversationDeleted}
+            />
+          )}
+          {activeSection === "rag" && (
+            <RagPanel
               activeConversationId={activeConversationId}
               onSelectConversation={onSelectConversation}
               onConversationCreated={onConversationCreated}

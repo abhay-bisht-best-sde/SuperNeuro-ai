@@ -57,6 +57,31 @@ export interface ChatMessage {
   content: string
 }
 
+export interface RagPdfSource {
+  type: "pdf"
+  knowledgeBaseId: string
+  fileName: string
+  r2Key: string
+  page: number
+  text: string
+}
+
+export interface RagImageSource {
+  type: "image"
+  knowledgeBaseId: string
+  fileName: string
+  r2Key: string
+  page: number
+  textSummary: string
+}
+
+export type RagSource = RagPdfSource | RagImageSource
+
+export interface ChatGraphResult {
+  content: string
+  ragSources?: RagSource[]
+}
+
 export interface ChatGraphInput {
   messages: ChatMessage[]
   userId?: string | null

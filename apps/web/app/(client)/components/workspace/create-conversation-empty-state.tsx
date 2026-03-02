@@ -8,10 +8,15 @@ import { Button } from "@/(client)/components/ui/button"
 interface IProps {
   hasConversations: boolean
   onCreateConversation?: () => void
+  createButtonLabel?: string
 }
 
 export function CreateConversationEmptyState(props: IProps) {
-  const { hasConversations, onCreateConversation } = props
+  const {
+    hasConversations,
+    onCreateConversation,
+    createButtonLabel = "New Conversation",
+  } = props
 
   const heading = hasConversations
     ? "Select a conversation or create a new one"
@@ -83,7 +88,7 @@ export function CreateConversationEmptyState(props: IProps) {
             className="gap-2 rounded-xl bg-primary px-6 py-2 text-primary-foreground hover:bg-primary/90"
           >
             <Plus className="h-4 w-4" />
-            New Conversation
+            {createButtonLabel}
           </Button>
         )}
       </motion.div>

@@ -8,6 +8,26 @@ export interface ConversationThinkingEvent {
   type: ConversationEventType.THINKING
 }
 
+export interface RagPdfSource {
+  type: "pdf"
+  knowledgeBaseId: string
+  fileName: string
+  r2Key: string
+  page: number
+  text: string
+}
+
+export interface RagImageSource {
+  type: "image"
+  knowledgeBaseId: string
+  fileName: string
+  r2Key: string
+  page: number
+  textSummary: string
+}
+
+export type RagSource = RagPdfSource | RagImageSource
+
 export interface ConversationMessageEvent {
   type: ConversationEventType.MESSAGE
   message: {
@@ -15,6 +35,7 @@ export interface ConversationMessageEvent {
     role: "assistant"
     content: string
     createdAt: string
+    ragSources?: RagSource[]
   }
 }
 

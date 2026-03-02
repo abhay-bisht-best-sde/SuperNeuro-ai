@@ -5,22 +5,13 @@ import {
   FETCH_KNOWLEDGE_BASE_KEYS,
   QUERY_STALE_TIME_MS,
 } from "@/(client)/libs/constants"
-import type {
-  KnowledgeBaseListItem,
-  KnowledgeBaseImageItem,
-} from "@repo/database/types"
+import type { KnowledgeBaseListItem } from "@repo/database/types"
 
 export { FETCH_KNOWLEDGE_BASE_KEYS }
 
-type KnowledgeBaseApiResponse = Omit<
-  KnowledgeBaseListItem,
-  "lastUpdated" | "images"
-> & {
+type KnowledgeBaseApiResponse = Omit<KnowledgeBaseListItem, "lastUpdated"> & {
   lastUpdated: string | null;
-  images: (Omit<KnowledgeBaseImageItem, "createdAt"> & {
-    createdAt: string;
-  })[];
-};
+}
 
 export function useKnowledgeBase() {
   return useQuery({
@@ -33,13 +24,10 @@ export function useKnowledgeBase() {
         (item): KnowledgeBaseListItem => ({
           ...item,
           lastUpdated: item.lastUpdated ? new Date(item.lastUpdated) : undefined,
-          images: item.images.map((img) => ({
-            ...img,
-            createdAt: new Date(img.createdAt),
-          })),
         })
       );
     },
     staleTime: QUERY_STALE_TIME_MS,
+    refetchInterval: 5_000,
   });
 }
