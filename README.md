@@ -18,7 +18,7 @@
 
 ## What’s Implemented
 
-- **Knowledge base pipeline** — OCR + PDF processing: uploads to R2 → SQS → worker chunks PDFs (LlamaIndex), extracts images, processes in parallel, embeds (OpenAI), stores in Pinecone.
+- **Knowledge base pipeline** — OCR + PDF processing: multi-part upload to R2 → SQS → worker chunks PDFs (LlamaIndex), extracts images, processes in parallel, embeds (OpenAI), stores in Pinecone.
 - **Tool integration** — Composio-backed tools; router picks providers (e.g. Gmail, Sheets, Tavily); OAuth connect/callback; tool-calling loop with LangChain/LangGraph.
 - **Conversation caching** — Redis cache for conversation payloads; cache invalidation on new messages.
 - **Knowledge base chat** — RAG conversations: retrieve from Pinecone by user query, inject context, LLM response with optional source citations (PDF/image).
