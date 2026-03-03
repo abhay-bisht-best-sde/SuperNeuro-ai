@@ -120,10 +120,10 @@ export function ChatMessage(props: IProps) {
       >
         <div
           className={cn(
-            "w-fit max-w-lg rounded-2xl px-4 py-3",
+            "w-fit rounded-2xl px-4 py-3",
             isUser
-              ? "text-primary-foreground"
-              : "border border-border bg-muted/50 text-foreground"
+              ? "max-w-lg text-primary-foreground"
+              : "max-w-2xl border border-border bg-muted/50 text-foreground"
           )}
           style={
             isUser
@@ -149,7 +149,16 @@ export function ChatMessage(props: IProps) {
                   "[&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-white/20 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_td]:border [&_td]:border-white/20 [&_td]:px-3 [&_td]:py-2"
                 )}
               >
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    a: ({ href, children, ...rest }) => (
+                      <a href={href} target="_blank" rel="noopener noreferrer" {...rest}>
+                        {children}
+                      </a>
+                    ),
+                  }}
+                >
                   {message.content}
                 </ReactMarkdown>
               </div>

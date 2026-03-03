@@ -9,7 +9,6 @@ import { initiateComposioConnection } from "@/(server)/lib/composio"
 import { runChatGraph, runRagGraph } from "@/(server)/lib/chat"
 import { SYSTEM_MESSAGE_OBJ } from "@/(server)/core/constants"
 import { MessageRole, ConversationType, type IntegrationType } from "@repo/database"
-import { saveCheckpoint } from "@/(server)/lib/chat/checkpoint"
 import type { ConversationEvent } from "@/libs/ably-types"
 
 const log = logger.withTag("message-processor")
@@ -106,16 +105,6 @@ export async function processConversationMessage(params: {
     } catch (err) {
       log.error("Failed to initiate Composio connection for requires_connection", err)
     }
-
-    // Save checkpoint so we can resume after OAuth
-    await saveCheckpoint(conversationId, {
-      userId,
-      conversationId,
-      pendingMessage: content,
-      requiredProviders: [provider],
-      origin,
-      createdAt: new Date().toISOString(),
-    })
 
     // Publish requires_connection event to the UI
     try {

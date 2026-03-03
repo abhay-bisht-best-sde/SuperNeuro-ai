@@ -125,7 +125,7 @@ export async function getComposioTools(params: {
 
   const toolArrays = await Promise.all(
     toolkits.map((toolkit) =>
-      composio.tools.get(userId, { toolkits: [toolkit], limit: 5 })
+      composio.tools.get(userId, { toolkits: [toolkit], limit: 15 })
     )
   )
 
@@ -134,6 +134,7 @@ export async function getComposioTools(params: {
   log.success("Composio tools fetched", {
     toolkitCount: toolkits.length,
     toolCount: flatTools.length,
+    toolNames: flatTools.map((t) => t.name),
   })
 
   return flatTools
